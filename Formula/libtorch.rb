@@ -4,19 +4,20 @@ class Libtorch < Formula
   desc "Tensors and dynamic neural networks"
   homepage "https://pytorch.org/"
   url "https://github.com/pytorch/pytorch.git",
-      tag:      "v1.8.0",
-      revision: "37c1f4a7fef115d719104e871d0cf39434aa9d56"
+      tag:      "v1.9.1",
+      revision: "dfbd030854359207cb3040b864614affeace11ce"
   license "BSD-3-Clause"
 
   livecheck do
     url :stable
-    strategy :github_latest
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
   bottle do
-    sha256 cellar: :any, big_sur:  "08759cfe3f5c0ab60f1d74332703d67c9ca54bafe6be60afab7a210518af7920"
-    sha256 cellar: :any, catalina: "4f5ccf4bc4b19c2eca0ef12fd06d820b181cb9b7b3187e6259a7ecc352372c27"
-    sha256 cellar: :any, mojave:   "8975867c5c88ed33c6db76dda75b65bb650c31a60eadcbb12c7fe1b7eab74e70"
+    sha256 cellar: :any,                 big_sur:      "259a9ade3880026cddffbadac967405d7a8900cce1d43739456f4acdd826a864"
+    sha256 cellar: :any,                 catalina:     "49c7b2cbd6f18a984be41fe3412a7928e54533acb171abdc89311cff0eb9eab5"
+    sha256 cellar: :any,                 mojave:       "65e1c0c4b62cbc28eb547f4139f8f42e007c9ad940475cbae74791b6dcb747a1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "563944e7996b82ccc32336fb6e46ee95ad8394a0163af50fdb359c1783ed697e"
   end
 
   depends_on "cmake" => :build
@@ -32,14 +33,9 @@ class Libtorch < Formula
     sha256 "607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"
   end
 
-  resource "typing" do
-    url "https://files.pythonhosted.org/packages/05/d9/6eebe19d46bd05360c9a9aae822e67a80f9242aabbfc58b641b957546607/typing-3.7.4.3.tar.gz"
-    sha256 "1187fb9c82fd670d10aa07bbb6cfcfe4bdda42d6fab8d5134f04e8c4d0b71cc9"
-  end
-
   resource "typing-extensions" do
-    url "https://files.pythonhosted.org/packages/16/06/0f7367eafb692f73158e5c5cbca1aec798cdf78be5167f6415dd4205fa32/typing_extensions-3.7.4.3.tar.gz"
-    sha256 "99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"
+    url "https://files.pythonhosted.org/packages/ed/12/c5079a15cf5c01d7f4252b473b00f7e68ee711be605b9f001528f0298b98/typing_extensions-3.10.0.2.tar.gz"
+    sha256 "49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"
   end
 
   def install
@@ -63,9 +59,7 @@ class Libtorch < Formula
       system "cmake", "..", *std_cmake_args, *args
 
       # Avoid references to Homebrew shims
-      inreplace "caffe2/core/macros.h",
-                "{\"CXX_COMPILER\", \"#{HOMEBREW_SHIMS_PATH}/mac/super/clang++\"},",
-                "{\"CXX_COMPILER\", \"/usr/bin/clang++\"},"
+      inreplace "caffe2/core/macros.h", Superenv.shims_path/ENV.cxx, ENV.cxx
 
       system "make"
       system "make", "install"
@@ -82,8 +76,9 @@ class Libtorch < Formula
         std::cout << tensor << std::endl;
       }
     EOS
-    system ENV.cxx, "-std=c++14", "-L#{lib}", "-ltorch", "-ltorch_cpu", "-lc10",
-      "-I#{include}/torch/csrc/api/include", "test.cpp", "-o", "test"
+    system ENV.cxx, "-std=c++14", "test.cpp", "-o", "test",
+                    "-I#{include}/torch/csrc/api/include",
+                    "-L#{lib}", "-ltorch", "-ltorch_cpu", "-lc10"
     system "./test"
   end
 end

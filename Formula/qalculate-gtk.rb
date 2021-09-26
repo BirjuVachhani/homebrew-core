@@ -2,15 +2,15 @@ class QalculateGtk < Formula
   desc "Multi-purpose desktop calculator"
   homepage "https://qalculate.github.io/"
   # NOTE: Please keep these values in sync with libqalculate.rb when updating.
-  url "https://github.com/Qalculate/qalculate-gtk/releases/download/v3.17.0/qalculate-gtk-3.17.0.tar.gz"
-  sha256 "b95f4be3c6fd883dec280a92d46b4678f8a7de2e5b654344246bb9d87695626b"
+  url "https://github.com/Qalculate/qalculate-gtk/releases/download/v3.20.1/qalculate-gtk-3.20.1.tar.gz"
+  sha256 "3985766a7b8977a0d1f94b807ea66e388ed29192185394c9ccc7b5733e4ce136"
   license "GPL-2.0-or-later"
 
   bottle do
-    sha256 arm64_big_sur: "2cf0fdd6bb6d3aa123cf69cf896c363aadfad7061569f64d1642f7d07e7794cf"
-    sha256 big_sur:       "6da6d042cfcee11b68629ef29c8a27ab107a416923e626e5c9f2eadb7cab2ca7"
-    sha256 catalina:      "3b29ddcec9f5c65568af677d1a8ae2b2e9c4195f37ba28255debe3430e8bac0f"
-    sha256 mojave:        "31dfae1024cd003580e8a97fdde32672c900c946f6179429dac06bbd84e2debf"
+    sha256 arm64_big_sur: "81401e1e322a8b0553b767e151b13ccfedb731d896a9517c64ed447e79ded773"
+    sha256 big_sur:       "0b1a453cca7a5307ee5284a3db88c0b74964ba05e62414f3e2cd6766f6b7e74c"
+    sha256 catalina:      "853af755a3971e43eb4323ab5b71c85a440bf2b0bf3e3feaea289c1b91efa8f8"
+    sha256 mojave:        "9a9565c1e9443448db8357e9d46f7dd8be72284c33a61b1fbeac8447eec58fcd"
   end
 
   depends_on "intltool" => :build

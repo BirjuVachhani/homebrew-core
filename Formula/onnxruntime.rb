@@ -2,8 +2,8 @@ class Onnxruntime < Formula
   desc "Cross-platform, high performance scoring engine for ML models"
   homepage "https://github.com/microsoft/onnxruntime"
   url "https://github.com/microsoft/onnxruntime.git",
-      tag:      "v1.7.1",
-      revision: "711a31e2ea7f9d7512d29f26702476102bda4ca4"
+      tag:      "v1.9.0",
+      revision: "4daa14bc74b5378d5fcb0d6de063a9fa8bd42eac"
   license "MIT"
 
   livecheck do
@@ -12,14 +12,21 @@ class Onnxruntime < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "e2844199bfcfcae12e9d15da1559d87bf0d6945dd302e23e16b646aef451f869"
-    sha256 cellar: :any, big_sur:       "75f2c88ccb0c65bcdf6d5441e53c05d389a266ed3f8894bf2b6f4dcdad3bf8dc"
-    sha256 cellar: :any, catalina:      "2eb0fe993ca4fbf621f51ecdb7e0d502fe369de12a1f9863c3eef3b950c9814d"
-    sha256 cellar: :any, mojave:        "7ef9a5fcf95576b1d62b08ed09ec4d15d567ea3a5799333c36889fcc5e29194a"
+    sha256 cellar: :any,                 arm64_big_sur: "9151d3423bb6c119d0034bbd5d451d8de72edbce0daac7b9fa3efcea4a60f8a6"
+    sha256 cellar: :any,                 big_sur:       "b6eab00990177c702f90354cc818a066281c874995ded531835c29fff903bde0"
+    sha256 cellar: :any,                 catalina:      "a5a88e4844530b2b8cabd0320bdd1bc63763901fed5aeb425645019cedddff16"
+    sha256 cellar: :any,                 mojave:        "81dac3a785d33e76b2969b091207180b585a1ddd055577b5695920702cc4af6f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "9136e98a1585ef11161013b12eabffdc63fbfdac2c76cb8f24aff8f9862a5ff4"
   end
 
   depends_on "cmake" => :build
   depends_on "python@3.9" => :build
+
+  on_linux do
+    depends_on "gcc" => :build
+  end
+
+  fails_with gcc: "5" # GCC version < 7 is no longer supported
 
   def install
     cmake_args = %W[
@@ -46,8 +53,8 @@ class Onnxruntime < Formula
         return 0;
       }
     EOS
-    system ENV.cc, "-I#{include}", "-L#{lib}", "-lonnxruntime",
-           testpath/"test.c", "-o", testpath/"test"
+    system ENV.cc, "-I#{include}", testpath/"test.c",
+           "-L#{lib}", "-lonnxruntime", "-o", testpath/"test"
     assert_equal version, shell_output("./test").strip
   end
 end

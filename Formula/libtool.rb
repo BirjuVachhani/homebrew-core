@@ -5,17 +5,17 @@ class Libtool < Formula
   mirror "https://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.xz"
   sha256 "7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f"
   license "GPL-2.0-or-later"
-  revision 2
+  revision 4
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "c4f95f52617ef0d9a6ec19b5c581241be4593497cd120e42621f55b0ae9548b6"
-    sha256 cellar: :any, big_sur:       "b5dba5a59ae66f42b012998e08edbeaed9e2456c0d1670307b8f46be5ef3b9fa"
-    sha256 cellar: :any, catalina:      "af317b35d0a394b7ef55fba4950735b0392d9f31bececebf9c412261c23a01fc"
-    sha256 cellar: :any, mojave:        "77ca68934e7ed9b9b0b8ce17618d7f08fc5d5a95d7b845622bf57345ffb1c0d6"
-    sha256 cellar: :any, high_sierra:   "60c7d86f9364e166846f8d3fb2ba969e6ca157e7ecbbb42a1de259116618c2ba"
+    sha256 cellar: :any,                 arm64_big_sur: "a41a4872cdfaa34bb4723e728b73dd8c7a05725501a262bb41ad9af4e2fcd1d6"
+    sha256 cellar: :any,                 big_sur:       "dfb94265706b7204b346e3e5d48e149d7c7870063740f0c4ab2d6ec971260517"
+    sha256 cellar: :any,                 catalina:      "ad541ac37b9a8042f998fb3640fe60f70d38483fa6a0784953d880190e9cc762"
+    sha256 cellar: :any,                 mojave:        "35c8d3e024a2507d7d3244bcebdb0ccc61c25ae292e6df6025f78c7342a9799d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "6e91d7c9a8eac6eccecea681d94cec3acfd1a13056e36f4cd2a623ddaeacd49a"
   end
 
-  uses_from_macos "m4" => :build
+  depends_on "m4"
 
   # Fixes the build on macOS 11:
   # https://lists.gnu.org/archive/html/libtool-patches/2020-06/msg00001.html
@@ -31,35 +31,41 @@ class Libtool < Formula
       touch file
     end
 
-    ENV["SED"] = "sed" # prevent libtool from hardcoding sed path from superenv
-
     args = %W[
       --disable-dependency-tracking
       --prefix=#{prefix}
       --enable-ltdl-install
     ]
 
-    on_macos do
-      args << "--program-prefix=g"
-    end
+    args << "--program-prefix=g" if OS.mac?
 
     system "./configure", *args
     system "make", "install"
 
-    on_linux do
+    if OS.mac?
+      %w[libtool libtoolize].each do |prog|
+        (libexec/"gnubin").install_symlink bin/"g#{prog}" => prog
+        (libexec/"gnuman/man1").install_symlink man1/"g#{prog}.1" => "#{prog}.1"
+      end
+      libexec.install_symlink "gnuman" => "man"
+    end
+
+    if OS.linux?
       bin.install_symlink "libtool" => "glibtool"
       bin.install_symlink "libtoolize" => "glibtoolize"
 
       # Avoid references to the Homebrew shims directory
-      inreplace bin/"libtool", HOMEBREW_SHIMS_PATH/"linux/super/", "/usr/bin/"
+      inreplace bin/"libtool", Superenv.shims_path, "/usr/bin"
     end
   end
 
   def caveats
     on_macos do
       <<~EOS
-        In order to prevent conflicts with Apple's own libtool we have prepended a "g"
-        so, you have instead: glibtool and glibtoolize.
+        All commands have been installed with the prefix "g".
+        If you need to use these commands with their normal names, you
+        can add a "gnubin" directory to your PATH from your bashrc like:
+          PATH="#{opt_libexec}/gnubin:$PATH"
       EOS
     end
   end

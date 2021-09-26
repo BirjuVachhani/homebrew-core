@@ -1,8 +1,8 @@
 class Gsoap < Formula
   desc "SOAP stub and skeleton compiler for C and C++"
   homepage "https://www.genivia.com/products.html"
-  url "https://downloads.sourceforge.net/project/gsoap2/gsoap-2.8/gsoap_2.8.111.zip"
-  sha256 "f1670c7e3aeaa66bc5658539fbd162e5099f022666855ef2b2c2bac07fec4bd3"
+  url "https://downloads.sourceforge.net/project/gsoap2/gsoap_2.8.117.zip"
+  sha256 "7cadf8808cfd982629948fe09e4fa6cd18e23cafd40df0aaaff1b1f5b695c442"
   license any_of: ["GPL-2.0-or-later", "gSOAP-1.3b"]
 
   livecheck do
@@ -11,10 +11,11 @@ class Gsoap < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "b27b5c8ba8cc9bd7bb5bee7850e79abe2a83827a66e07b8ec1616d9e91c2927b"
-    sha256 big_sur:       "6a02f874228f9b5eaacd662c71e3589c59a0a2bb1d24d929ea17b0ee7a09a8ac"
-    sha256 catalina:      "cbaaa15033dc9a62aa74195175860bba1201d54a1cf05c809424caa38cfd735a"
-    sha256 mojave:        "8474f840a2b849a0779a9d7a54ecf390d4d6cdf2b4898530ca7e4415b31c9625"
+    sha256 arm64_big_sur: "fb074963567f15e35317ba190540835a9701746ba9a590002415ae6dc4083d96"
+    sha256 big_sur:       "84f24f86809047fdd972a9d192514b0d9ab08a27821ce07a3e60f33a44697459"
+    sha256 catalina:      "6bee22cc8b7c43f3d41b51bd75c50cf0f444feed51d9bf5a4f7dd288d662a42d"
+    sha256 mojave:        "d90706cf140e9b273d56007f6e56db0933686d50afae9a9703b862af3bce5b55"
+    sha256 x86_64_linux:  "2ecb0911a0996e51f00d7e35a3729865bc19eeec3aaf5189ce54ee7e18c5d5a5"
   end
 
   depends_on "autoconf" => :build

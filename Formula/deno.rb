@@ -1,39 +1,55 @@
 class Deno < Formula
   desc "Secure runtime for JavaScript and TypeScript"
   homepage "https://deno.land/"
-  url "https://github.com/denoland/deno/releases/download/v1.8.1/deno_src.tar.gz"
-  sha256 "65d700b90c85b105b50df390a6ca84b8df8635b701e3b7afdf115175501fcd9d"
+  url "https://github.com/denoland/deno/releases/download/v1.14.1/deno_src.tar.gz"
+  sha256 "330d2342c9e312e20a9e5b4f0f487957a6b0508d127c9848b95a59548cb5db5b"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "42c6541cf729c37b1246e4105f74571f5b4ad2eb932974f66013953f8d4dd6fa"
-    sha256 cellar: :any_skip_relocation, big_sur:       "dbf1b4d8a897c2160ced21441a2749d32fe0508d5af3d96ccb2d626e168f8fcd"
-    sha256 cellar: :any_skip_relocation, catalina:      "de7c50d8d4683160acf211cfdbaab2cbaea1a9f53dba01b41672d46c786cb3cf"
-    sha256 cellar: :any_skip_relocation, mojave:        "b95650cb6794cf1b97c2775045320d52c828dcf5188016e1413bb9ac5c73161c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "606bf4f18e1f763e0115f5403f2b1ecd8106b0cbdc9dbefd0bd6f82ef1d3c41c"
+    sha256 cellar: :any_skip_relocation, big_sur:       "d35a61e51a754c4c97421d7da635cedb76f56f424482474f26f84cd884b1c632"
+    sha256 cellar: :any_skip_relocation, catalina:      "1c134fff25d4e95d4ccfb6b1b494c1da6a45b7e59f3c967e7a44cbaaa26dbd83"
+    sha256 cellar: :any_skip_relocation, mojave:        "9e9b2e91f994ffee52fcbd326301e46df800c966571b6af6f946c010568660e7"
+    sha256                               x86_64_linux:  "9f20b7706a20d2ef3cbe522e7ced7a0e5a0ced56123a93fa18bb4be0bceeaf20"
   end
 
   depends_on "llvm" => :build
   depends_on "ninja" => :build
+  depends_on "python@3.9" => :build
   depends_on "rust" => :build
-  depends_on xcode: ["10.0", :build] # required by v8 7.9+
-  depends_on :macos # Due to Python 2 (see https://bugs.chromium.org/p/chromium/issues/detail?id=942720)
 
   uses_from_macos "xz"
 
+  on_macos do
+    depends_on xcode: ["10.0", :build] # required by v8 7.9+
+  end
+
+  on_linux do
+    depends_on "pkg-config" => :build
+    depends_on "glib"
+  end
+
+  fails_with gcc: "5"
+
   # To find the version of gn used:
   # 1. Find rusty_v8 version: https://github.com/denoland/deno/blob/v#{version}/core/Cargo.toml
-  # 2. Find buildtools submodule commit: https://github.com/denoland/rusty_v8/tree/v#{rusty_v8_version}
-  # 3. Check gn_version: https://github.com/denoland/chromium_buildtools/blob/#{buildtools_commit}/DEPS
+  # 2. Find ninja_gn_binaries tag: https://github.com/denoland/rusty_v8/tree/v#{rusty_v8_version}/tools/ninja_gn_binaries.py
+  # 3. Find short gn commit hash from commit message: https://github.com/denoland/ninja_gn_binaries/tree/#{ninja_gn_binaries_tag}
+  # 4. Find full gn commit hash: https://gn.googlesource.com/gn.git/+/#{gn_commit}
   resource "gn" do
     url "https://gn.googlesource.com/gn.git",
-        revision: "dfcbc6fed0a8352696f92d67ccad54048ad182b3"
+        revision: "53d92014bf94c3893886470a1c7c1289f8818db0"
   end
 
   def install
-    # Overwrite Chromium minimum SDK version of 10.15
-    ENV["FORCE_MAC_SDK_MIN"] = MacOS.version if MacOS.version < :mojave
+    if OS.mac? && (MacOS.version < :mojave)
+      # Overwrite Chromium minimum SDK version of 10.15
+      ENV["FORCE_MAC_SDK_MIN"] = MacOS.version
+    end
 
-    # env args for building a release build with our clang, ninja and gn
+    # env args for building a release build with our python3, ninja and gn
+    ENV.prepend_path "PATH", Formula["python@3.9"].libexec/"bin"
+    ENV["PYTHON"] = Formula["python@3.9"].opt_bin/"python3"
     ENV["GN"] = buildpath/"gn/out/gn"
     ENV["NINJA"] = Formula["ninja"].opt_bin/"ninja"
     # build rusty_v8 from source
@@ -44,7 +60,7 @@ class Deno < Formula
 
     resource("gn").stage buildpath/"gn"
     cd "gn" do
-      system "python", "build/gen.py"
+      system "python3", "build/gen.py"
       system "ninja", "-C", "out"
     end
 
@@ -54,11 +70,11 @@ class Deno < Formula
       system "cargo", "install", "-vv", "-j1", *std_cargo_args
     end
 
-    bash_output = Utils.safe_popen_read("#{bin}/deno", "completions", "bash")
+    bash_output = Utils.safe_popen_read(bin/"deno", "completions", "bash")
     (bash_completion/"deno").write bash_output
-    zsh_output = Utils.safe_popen_read("#{bin}/deno", "completions", "zsh")
+    zsh_output = Utils.safe_popen_read(bin/"deno", "completions", "zsh")
     (zsh_completion/"_deno").write zsh_output
-    fish_output = Utils.safe_popen_read("#{bin}/deno", "completions", "fish")
+    fish_output = Utils.safe_popen_read(bin/"deno", "completions", "fish")
     (fish_completion/"deno.fish").write fish_output
   end
 

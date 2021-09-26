@@ -1,34 +1,37 @@
 class Wxmaxima < Formula
   desc "Cross platform GUI for Maxima"
   homepage "https://wxmaxima-developers.github.io/wxmaxima/"
-  url "https://github.com/wxMaxima-developers/wxmaxima/archive/Version-21.02.0.tar.gz"
-  sha256 "573ab40de4e4dd3ca56d1e73fc913e3f6495c2331c4b71b1e4c48626499c0a6c"
+  url "https://github.com/wxMaxima-developers/wxmaxima/archive/Version-21.05.2.tar.gz"
+  sha256 "4d2d486a24090ace2f64ceccb026210e2e6299a32cb348d43134ef80440bcf01"
   license "GPL-2.0-or-later"
-  head "https://github.com/wxMaxima-developers/wxmaxima.git"
+  revision 2
+  head "https://github.com/wxMaxima-developers/wxmaxima.git", branch: "main"
 
   bottle do
-    sha256 arm64_big_sur: "3bad4d99fc33460e381b1b601cc54811396933d23caa6991bad504bf9e89fe98"
-    sha256 big_sur:       "e15dcc46f0848c6c7d6a1b68f4a76b6d3329fb3d381e4c07cd41e1dc1c2b0383"
-    sha256 catalina:      "e66764ba84d6fb8df4c9816c0e8ec84db840e8aa978abaa35e6fb8cec98e21a0"
-    sha256 mojave:        "d8ae8e9d2d931fd612ece6980ef11223305d6bd80870b0f844d31fa176b72fed"
+    sha256 arm64_big_sur: "c5885649ca8ab371701954eb6315e59e97136dbf852298cfceb78c5d1d0f56cf"
+    sha256 big_sur:       "a02efeeb839aa82eba7f78634e4c2cdca4d4fbb44106a572d4358cc6d6120894"
+    sha256 catalina:      "1ba9b4c32bd55e704584a4d1b31abf823fd8e6cfe794a9b329ec40fe6ca1457b"
+    sha256 mojave:        "63862e6e1cdda9db206fa8f1eb1280642be7e8d35b53b8595c5013d6c83369e8"
   end
 
   depends_on "cmake" => :build
   depends_on "gettext" => :build
   depends_on "ninja" => :build
   depends_on "maxima"
-  depends_on "wxmac"
+  depends_on "wxwidgets"
 
   def install
     mkdir "build-wxm" do
       system "cmake", "..", "-GNinja", *std_cmake_args
       system "ninja"
       system "ninja", "install"
-      prefix.install "src/wxMaxima.app"
+
+      prefix.install "src/wxMaxima.app" if OS.mac?
     end
 
     bash_completion.install "data/wxmaxima"
-    bin.write_exec_script "#{prefix}/wxMaxima.app/Contents/MacOS/wxmaxima"
+
+    bin.write_exec_script "#{prefix}/wxMaxima.app/Contents/MacOS/wxmaxima" if OS.mac?
   end
 
   def caveats
@@ -44,6 +47,11 @@ class Wxmaxima < Formula
   end
 
   test do
+    on_linux do
+      # Error: Unable to initialize GTK+, is DISPLAY set properly
+      return if ENV["HOMEBREW_GITHUB_ACTIONS"]
+    end
+
     assert_match "algebra", shell_output("#{bin}/wxmaxima --help 2>&1")
   end
 end

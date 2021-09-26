@@ -2,16 +2,17 @@ class Wownero < Formula
   desc "Official wallet and node software for the Wownero cryptocurrency"
   homepage "https://wownero.org"
   url "https://git.wownero.com/wownero/wownero.git",
-      tag:      "v0.9.2.2",
-      revision: "0e65b21328f88044009838ed963652effe13b5c4"
+      tag:      "v0.10.1.0",
+      revision: "8ab87421d9321d0b61992c924cfa6e3918118ad0"
   license "BSD-3-Clause"
   revision 1
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "d80890e7ee1eb581b34b03499d02b2448dcedd1f8a1f995328a2c0900d43de9a"
-    sha256 cellar: :any, big_sur:       "9c6e61cdf77def4a409b44b0ca5f7a18f05d761f900dd3ceb3b99b4499d6d245"
-    sha256 cellar: :any, catalina:      "20768518c25c2477ee4719547d763e50286c7bace569e39ad9fb4f2d1d3df971"
-    sha256 cellar: :any, mojave:        "0d5accab8bb0c88ce97f9b215b16c91305474b5d4e6f9fdb73bdf2993a33693e"
+    sha256 cellar: :any,                 arm64_big_sur: "ef39a53fc330916136257fa2f8e2019063e544770789b09503b53e4505bea918"
+    sha256 cellar: :any,                 big_sur:       "2a7dc81fcfa03e22dfc74d069ccc505a249823ab116ca2f6eabc3e14d25f28f2"
+    sha256 cellar: :any,                 catalina:      "2713015081577274b00955f18eca366944e1557cd89ec00d852470c40a543ded"
+    sha256 cellar: :any,                 mojave:        "549739d9edb69887b6661b5daa670ac310693c44ff8462ece01629277b6aa263"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "b25b0804cff6eb8b88df6ecb0c72e836b22fd2bde9e78c7426c7c2cdba661abf"
   end
 
   depends_on "cmake" => :build
@@ -25,11 +26,15 @@ class Wownero < Formula
   depends_on "unbound"
   depends_on "zeromq"
 
-  conflicts_with "miniupnpc", because: "wownero ships its own copy of miniupnpc"
   conflicts_with "monero", because: "both install a wallet2_api.h header"
 
+  # Boost 1.76 compatibility
+  # https://github.com/loqs/monero/commit/5e902e5e32c672661dfe5677c4a950c4dd409198
+  patch :DATA
+
   def install
-    system "cmake", ".", *std_cmake_args
+    # Need to help CMake find `readline` when not using /usr/local prefix
+    system "cmake", ".", *std_cmake_args, "-DReadline_ROOT_DIR=#{Formula["readline"].opt_prefix}"
     system "make", "install"
 
     # Fix conflict with miniupnpc.
@@ -37,36 +42,33 @@ class Wownero < Formula
     rm lib/"libminiupnpc.a"
   end
 
-  plist_options manual: "wownerod --non-interactive"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/wownerod</string>
-          <string>--non-interactive</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"wownerod", "--non-interactive"]
   end
 
   test do
     cmd = "yes '' | #{bin}/wownero-wallet-cli --restore-deterministic-wallet " \
-      "--password brew-test --restore-height 238084 --generate-new-wallet wallet " \
-      "--electrum-seed 'maze vixen spiders luggage vibrate western nugget older " \
-      "emails oozed frown isolated ledge business vaults budget " \
-      "saucepan faxed aloof down emulate younger jump legion saucepan'" \
-      "--command address"
+          "--password brew-test --restore-height 238084 --generate-new-wallet wallet " \
+          "--electrum-seed 'maze vixen spiders luggage vibrate western nugget older " \
+          "emails oozed frown isolated ledge business vaults budget " \
+          "saucepan faxed aloof down emulate younger jump legion saucepan'" \
+          "--command address"
     address = "Wo3YLuTzJLTQjSkyNKPQxQYz5JzR6xi2CTS1PPDJD6nQAZ1ZCk1TDEHHx8CRjHNQ9JDmwCDGhvGF3CZXmmX1sM9a1YhmcQPJM"
     assert_equal address, shell_output(cmd).lines.last.split[1]
   end
 end
+
+__END__
+diff --git a/contrib/epee/include/storages/portable_storage.h b/contrib/epee/include/storages/portable_storage.h
+index f77e89cb6..066e12878 100644
+--- a/contrib/epee/include/storages/portable_storage.h
++++ b/contrib/epee/include/storages/portable_storage.h
+@@ -39,6 +39,8 @@
+ #include "span.h"
+ #include "int-util.h"
+
++#include <boost/mpl/contains.hpp>
++
+ namespace epee
+ {
+   class byte_slice;

@@ -3,7 +3,7 @@ class Viennacl < Formula
   homepage "https://viennacl.sourceforge.io/"
   url "https://downloads.sourceforge.net/project/viennacl/1.7.x/ViennaCL-1.7.1.tar.gz"
   sha256 "a596b77972ad3d2bab9d4e63200b171cd0e709fb3f0ceabcaf3668c87d3a238b"
-  head "https://github.com/viennacl/viennacl-dev.git"
+  head "https://github.com/viennacl/viennacl-dev.git", branch: "master"
 
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "a59335b82a9f92448236ec0278d156f2425995d48fddcef730b906ca63aea6f9"
@@ -14,7 +14,6 @@ class Viennacl < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "809b0ff014ad6fdae2337ac8dd0cde29c72fe4cb8817a7e7417e9722b7572059"
     sha256 cellar: :any_skip_relocation, el_capitan:    "cb5cd96fd4c730518b6b0e150fd15386ad71576e444bfbbd5f055e844d4a5976"
     sha256 cellar: :any_skip_relocation, yosemite:      "875f61b8270246247450c0beedc9710b52d07171717dd2f9de9a493f3b4027b6"
-    sha256 cellar: :any_skip_relocation, mavericks:     "7256e29352bcf349fda479ef6913241249db48065ce64e7daee8cfe7b96c88fd"
   end
 
   depends_on "cmake" => :build

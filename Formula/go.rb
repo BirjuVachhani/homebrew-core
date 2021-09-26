@@ -1,9 +1,9 @@
 class Go < Formula
   desc "Open source programming language to build simple/reliable/efficient software"
   homepage "https://golang.org"
-  url "https://golang.org/dl/go1.16.2.src.tar.gz"
-  mirror "https://fossies.org/linux/misc/go1.16.2.src.tar.gz"
-  sha256 "37ca14287a23cb8ba2ac3f5c3dd8adbc1f7a54b9701a57824bf19a0b271f83ea"
+  url "https://golang.org/dl/go1.17.1.src.tar.gz"
+  mirror "https://fossies.org/linux/misc/go1.17.1.src.tar.gz"
+  sha256 "49dc08339770acd5613312db8c141eaf61779995577b89d93b541ef83067e5b1"
   license "BSD-3-Clause"
   head "https://go.googlesource.com/go.git"
 
@@ -13,10 +13,11 @@ class Go < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "b5e7afc5fe32df4a9f66f7467be5ec25266c649a942dba2fadf59ec0b31c6f33"
-    sha256 big_sur:       "b4b8fd4d0e53711f7ad6333146708a1ea61a7063abcfa086f57b1cf3c820e070"
-    sha256 catalina:      "ad0e76d44fb2f21cd125dc7fb97d2625688ed0cd33c02f9df77efa0a7315f82f"
-    sha256 mojave:        "17f5ec09c5cdd9251800b402b277df9443d4718c291ff3de4c1a58066c47f991"
+    sha256 arm64_big_sur: "d0108e9df0041587d852d63e5811e4b0a4ae498309cf7f9dd95463ddaa581d48"
+    sha256 big_sur:       "d1db2f29f84397225afccd674eef9b6c9e5a591a9372aab195b5c463d8ad6421"
+    sha256 catalina:      "15f1890939c34f3eeb841c09c6b74c23c43450337d50a3f0963493a3a861b7f9"
+    sha256 mojave:        "0299a79c3c05259256f5b4f10e532a3b2057423a93024f87ac99a174ec2e9d9f"
+    sha256 x86_64_linux:  "65e57b46322ebb9957754293cc66012579d93a7795b286bd2f267758f8006d7b"
   end
 
   # Don't update this unless this version cannot bootstrap the new version.
@@ -58,7 +59,9 @@ class Go < Formula
 
     # Remove useless files.
     # Breaks patchelf because folder contains weird debug/test files
-    rm_rf Dir[libexec/"src/debug/elf/testdata"]
+    (libexec/"src/debug/elf/testdata").rmtree
+    # Binaries built for an incompatible architecture
+    (libexec/"src/runtime/pprof/testdata").rmtree
   end
 
   test do

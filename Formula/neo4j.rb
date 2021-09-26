@@ -1,8 +1,8 @@
 class Neo4j < Formula
   desc "Robust (fully ACID) transactional property graph database"
   homepage "https://neo4j.com/"
-  url "https://neo4j.com/artifact.php?name=neo4j-community-4.2.3-unix.tar.gz"
-  sha256 "319edc1d6eed094b0e53b27491df2cbb0cbd10fce546a981e871aa06612765ce"
+  url "https://neo4j.com/artifact.php?name=neo4j-community-4.3.4-unix.tar.gz"
+  sha256 "7627641eeed3b5d98f1883f18e33d76cd280d88f1c7be3760686e22edd33b9b7"
   license "GPL-3.0-or-later"
 
   livecheck do
@@ -11,7 +11,9 @@ class Neo4j < Formula
           |href=.*?release=v?(\d+(?:\.\d+)+)[^"' >]+edition=community/ix)
   end
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "98a6b537769f18661c2ac23d0e51c5105df78e054911eb6e7acfdcfb0976fd0d"
+  end
 
   depends_on "openjdk@11"
 
@@ -45,34 +47,12 @@ class Neo4j < Formula
     (var/"neo4j").mkpath
   end
 
-  plist_options manual: "neo4j start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <false/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/neo4j</string>
-            <string>console</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/neo4j.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/neo4j.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"neo4j", "console"]
+    keep_alive false
+    working_dir var
+    log_path var/"log/neo4j.log"
+    error_log_path var/"log/neo4j.log"
   end
 
   test do

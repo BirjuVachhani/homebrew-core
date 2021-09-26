@@ -1,24 +1,26 @@
 class Swiftformat < Formula
   desc "Formatting tool for reformatting Swift code"
   homepage "https://github.com/nicklockwood/SwiftFormat"
-  url "https://github.com/nicklockwood/SwiftFormat/archive/0.47.12.tar.gz"
-  sha256 "1cb49dfec1dddeeec130b15c949072b288ee30e8fb1e828ee4e4851df3891a78"
+  url "https://github.com/nicklockwood/SwiftFormat/archive/0.48.11.tar.gz"
+  sha256 "e094d9dcfa377d327fa53316b60776b47944d93fb85ae8e1ba217a954d95eeba"
   license "MIT"
-  head "https://github.com/nicklockwood/SwiftFormat.git", shallow: false
+  head "https://github.com/nicklockwood/SwiftFormat.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "334b736f7c78b1bc48882f55558e79571be591281462bc91dedea6dac10034be"
-    sha256 cellar: :any_skip_relocation, big_sur:       "b7ba5043f29c548dd05374125faa61dd07690bffe373890cb608609e4a7e2413"
-    sha256 cellar: :any_skip_relocation, catalina:      "030b2e18168f5680c4ee387812b14057c4cb148b6f6800b983b1b298f4af15b1"
-    sha256 cellar: :any_skip_relocation, mojave:        "b3e35821d3094d08eb9f8423ce7d18cb5462bb5b1d02a3156ed1a10f6539709a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "e0a851cfa2ff5d04f0fc98a9e624d1411f1b5b1e55e3cbc0901f4913c02e716a"
+    sha256 cellar: :any_skip_relocation, big_sur:       "a5327283fe32b2ef2c6f264e14c966a9a60cb291415d3d05ed659c92a93c4987"
+    sha256 cellar: :any_skip_relocation, catalina:      "ba95e49ecc71bb19734698dee565e3b0ced6470729206cb434675cfa051f2755"
+    sha256 cellar: :any_skip_relocation, mojave:        "c7e00eae9d46dddf040999f0f2832d08110f093c7a403aaaaaa18d8830213967"
   end
 
   depends_on xcode: ["10.1", :build]
+  depends_on :macos
 
   def install
-    xcodebuild "-project",
-        "SwiftFormat.xcodeproj",
+    xcodebuild "-arch", Hardware::CPU.arch,
+        "-project", "SwiftFormat.xcodeproj",
         "-scheme", "SwiftFormat (Command Line Tool)",
+        "-configuration", "Release",
         "CODE_SIGN_IDENTITY=",
         "SYMROOT=build", "OBJROOT=build"
     bin.install "build/Release/swiftformat"

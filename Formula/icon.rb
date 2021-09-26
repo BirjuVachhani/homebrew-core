@@ -4,6 +4,7 @@ class Icon < Formula
   url "https://github.com/gtownsend/icon/archive/v9.5.20i.tar.gz"
   version "9.5.20i"
   sha256 "3ebfcc89f3f3f7acc5afe61402f6b3b168b8cd83f79021c98bbd791e92c4cbe8"
+  license :public_domain
 
   livecheck do
     url :stable
@@ -11,15 +12,22 @@ class Icon < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "1d414ead849c9d0c8f20fdbba672c2ffc0cc32d3522cb8bf3aa0dc20324ac875"
-    sha256 cellar: :any_skip_relocation, big_sur:       "14023318a41cfb25dc16580def3078398493ed67a6c17bcf4fef748ef8bf2779"
-    sha256 cellar: :any_skip_relocation, catalina:      "fc52931ec8205d4bce4a9d7b2d8d8a12bcca9c55ac3e0fa8a1c1e5550f193ccc"
-    sha256 cellar: :any_skip_relocation, mojave:        "7375228280ad4b34aa3e703da54e6af031c78c644636f1e1e45f0b776b4f5b18"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "427ea97df09541d16bb99cc53dab255578569da00e1e40cbc49691991a750916"
+    sha256 cellar: :any_skip_relocation, big_sur:       "86bf64dcc7c29f0f6e20d36c135764cfa1b60381b63ff5826dbfcba9234066cd"
+    sha256 cellar: :any_skip_relocation, catalina:      "8f2ea4a3265901d2bc21032d216f9191fbc9f574c4954370a24e4542e3cfaa88"
+    sha256 cellar: :any_skip_relocation, mojave:        "fa51b1932b8b2a3d43cfd35bc4dea95625b2932360166fe3c5f38f4d0fc6d3ac"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "94524baf371fd210958d6a8fb1db5d25dc2030cfc1179e59b5b1832183bc8db7"
   end
 
   def install
     ENV.deparallelize
-    system "make", "Configure", "name=posix"
+    target = if OS.mac?
+      "posix"
+    else
+      "linux"
+    end
+    system "make", "Configure", "name=#{target}"
     system "make"
     bin.install "bin/icon", "bin/icont", "bin/iconx"
     doc.install Dir["doc/*"]

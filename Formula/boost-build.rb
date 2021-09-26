@@ -1,11 +1,11 @@
 class BoostBuild < Formula
   desc "C++ build system"
   homepage "https://www.boost.org/build/"
-  url "https://github.com/boostorg/build/archive/boost-1.75.0.tar.gz"
-  sha256 "889e931b25e435912e7b0dda89ae150fa1dabe419caccfbb923d41e85809e7df"
+  url "https://github.com/boostorg/build/archive/boost-1.77.0.tar.gz"
+  sha256 "17ad1addbc08d1cc6ef52f7140097915bc4904c28c7d6d733c4a1a20d40bbc1c"
   license "BSL-1.0"
   version_scheme 1
-  head "https://github.com/boostorg/build.git"
+  head "https://github.com/boostorg/build.git", branch: "develop"
 
   livecheck do
     url :stable
@@ -13,21 +13,14 @@ class BoostBuild < Formula
   end
 
   bottle do
-    rebuild 2
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "050492679c4ceafce723aca7fa4185e1342e3cd011b1947f33466e639ece226a"
-    sha256 cellar: :any_skip_relocation, big_sur:       "3e55b292a1bb2162a3ac207897e0c38031dc65a4bd858c085ffb35dfeae8237e"
-    sha256 cellar: :any_skip_relocation, catalina:      "71b77320b7c991c74dbad21e38e875cb2b150db8fcd56113d3f74ea379343b6f"
-    sha256 cellar: :any_skip_relocation, mojave:        "ef91e139803aba94c3ce22e085d1332b78e1a820fdeb73dace0eebc194aec0a4"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "e73b2881104b13fef6c2c6a0fff30bd2bf41ff998936850a0d9cbc7cac5b86b1"
+    sha256 cellar: :any_skip_relocation, big_sur:       "651353d33f97fa5183c9acde956f7cfd67e36f288a4a35afaf907838e69dca36"
+    sha256 cellar: :any_skip_relocation, catalina:      "bc8909293558dd1d3c55a9d2d5cdfa155e63b3540da63a719a33fa872f371921"
+    sha256 cellar: :any_skip_relocation, mojave:        "26da04379b8dd9506778273f12277eb00b257653c11502d8ff50d3218587cc10"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "9119799f6a153292e094509fdce67cb553b83cb8f32db717324b7a529cf99939"
   end
 
   conflicts_with "b2-tools", because: "both install `b2` binaries"
-
-  # Fix build system issues on Apple silicon. This change has aleady
-  # been merged upstream, remove this patch once it lands in a release.
-  patch do
-    url "https://github.com/boostorg/build/commit/456be0b7ecca065fbccf380c2f51e0985e608ba0.patch?full_index=1"
-    sha256 "e7a78145452fc145ea5d6e5f61e72df7dcab3a6eebb2cade6b4cfae815687f3a"
-  end
 
   def install
     system "./bootstrap.sh"
@@ -43,15 +36,9 @@ class BoostBuild < Formula
     (testpath/"Jamroot.jam").write("exe hello : hello.cpp ;")
 
     system bin/"b2", "release"
-    release = nil
-    on_macos do
-      release = "darwin-*"
-    end
-    on_linux do
-      version = IO.popen("gcc -dumpversion").read.chomp
-      release = "gcc-#{version}"
-    end
-    out = Dir["bin/#{release}/release/hello"]
+
+    compiler = File.basename(ENV.cc)
+    out = Dir["bin/#{compiler}*/release/hello"]
     assert out.length == 1
     assert_predicate testpath/out[0], :exist?
     assert_equal "Hello world", shell_output(out[0])

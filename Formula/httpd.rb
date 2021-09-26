@@ -1,17 +1,17 @@
 class Httpd < Formula
   desc "Apache HTTP server"
   homepage "https://httpd.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.46.tar.bz2"
-  mirror "https://archive.apache.org/dist/httpd/httpd-2.4.46.tar.bz2"
-  sha256 "740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41ea"
+  url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.49.tar.bz2"
+  mirror "https://archive.apache.org/dist/httpd/httpd-2.4.49.tar.bz2"
+  sha256 "65b965d6890ea90d9706595e4b7b9365b5060bec8ea723449480b4769974133b"
   license "Apache-2.0"
-  revision 2
 
   bottle do
-    sha256 arm64_big_sur: "35357c35f6be07c0f3e60d64c88eae200158dca6e390a341569a9f0296ed33fb"
-    sha256 big_sur:       "5a979ae3affd408b4ab51f917ef34e662a9cb85eb3918e56e05e1bcfac1aedac"
-    sha256 catalina:      "c540cd4ba596ff6f0df9d772c41487c26201f548a3756ee7a02108c70fee147e"
-    sha256 mojave:        "b88153894953fa0c976f0f74bec8abf2646b320424cc92a5cbdebb6a493ab729"
+    sha256 arm64_big_sur: "e6ebcb4a1307a3e8c9c8dcb41d5a702398b38ca537e14502dc898acce3c78000"
+    sha256 big_sur:       "ade7dbaf67d42a5e71e08fb34d771df23f2b8be478507679ba6ca9593ca74673"
+    sha256 catalina:      "657cba33ccfe3498613f48112b1e28181237fa56674e3d29bc4be5ab4e6218d6"
+    sha256 mojave:        "645aca6e1cf953f13bc527bb434c765025b270a9b65f52cc4522673a16a2101b"
+    sha256 x86_64_linux:  "fb5df0ba244a0f95ee0e78a81b6322e684d9c53a4a9daf987f306c3956239b04"
   end
 
   depends_on "apr"
@@ -21,6 +21,7 @@ class Httpd < Formula
   depends_on "openssl@1.1"
   depends_on "pcre"
 
+  uses_from_macos "libxml2"
   uses_from_macos "zlib"
 
   def install
@@ -44,6 +45,13 @@ class Httpd < Formula
       s.gsub! "${datadir}/icons",   "#{pkgshare}/icons"
     end
 
+    libxml2 = "#{MacOS.sdk_path_if_needed}/usr"
+    libxml2 = Formula["libxml2"].opt_prefix if OS.linux?
+    zlib = if OS.mac?
+      "#{MacOS.sdk_path_if_needed}/usr"
+    else
+      Formula["zlib"].opt_prefix
+    end
     system "./configure", "--enable-layout=Slackware-FHS",
                           "--prefix=#{prefix}",
                           "--sbindir=#{bin}",
@@ -64,15 +72,16 @@ class Httpd < Formula
                           "--with-apr=#{Formula["apr"].opt_prefix}",
                           "--with-apr-util=#{Formula["apr-util"].opt_prefix}",
                           "--with-brotli=#{Formula["brotli"].opt_prefix}",
-                          "--with-libxml2=#{MacOS.sdk_path_if_needed}/usr",
+                          "--with-libxml2=#{libxml2}",
                           "--with-mpm=prefork",
                           "--with-nghttp2=#{Formula["nghttp2"].opt_prefix}",
                           "--with-ssl=#{Formula["openssl@1.1"].opt_prefix}",
                           "--with-pcre=#{Formula["pcre"].opt_prefix}",
-                          "--with-z=#{MacOS.sdk_path_if_needed}/usr",
+                          "--with-z=#{zlib}",
                           "--disable-lua",
                           "--disable-luajit"
     system "make"
+    ENV.deparallelize if OS.linux?
     system "make", "install"
 
     # suexec does not install without root
@@ -87,7 +96,7 @@ class Httpd < Formula
       #{include}/httpd/ap_config_layout.h
       #{lib}/httpd/build/config_vars.mk
     ] do |s|
-      s.gsub! "#{lib}/httpd/modules", "#{HOMEBREW_PREFIX}/lib/httpd/modules"
+      s.gsub! lib/"httpd/modules", HOMEBREW_PREFIX/"lib/httpd/modules"
     end
 
     inreplace %W[
@@ -104,8 +113,8 @@ class Httpd < Formula
     inreplace "#{lib}/httpd/build/config_vars.mk" do |s|
       pcre = Formula["pcre"]
       s.gsub! pcre.prefix.realpath, pcre.opt_prefix
-      s.gsub! "${prefix}/lib/httpd/modules",
-              "#{HOMEBREW_PREFIX}/lib/httpd/modules"
+      s.gsub! "${prefix}/lib/httpd/modules", HOMEBREW_PREFIX/"lib/httpd/modules"
+      s.gsub! Superenv.shims_path, HOMEBREW_PREFIX/"bin"
     end
   end
 
@@ -125,30 +134,10 @@ class Httpd < Formula
 
   plist_options manual: "apachectl start"
 
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/httpd</string>
-          <string>-D</string>
-          <string>FOREGROUND</string>
-        </array>
-        <key>EnvironmentVariables</key>
-        <dict>
-          <key>PATH</key>
-          <string>#{HOMEBREW_PREFIX}/bin:#{HOMEBREW_PREFIX}/sbin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-        </dict>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"httpd", "-D", "FOREGROUND"]
+    environment_variables PATH: std_service_path_env
+    run_type :immediate
   end
 
   test do

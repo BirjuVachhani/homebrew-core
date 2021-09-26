@@ -1,10 +1,10 @@
 class Opencv < Formula
   desc "Open source computer vision library"
   homepage "https://opencv.org/"
-  url "https://github.com/opencv/opencv/archive/4.5.1.tar.gz"
-  sha256 "e27fe5b168918ab60d58d7ace2bd82dd14a4d0bd1d3ae182952c2113f5637513"
+  url "https://github.com/opencv/opencv/archive/4.5.3.tar.gz"
+  sha256 "77f616ae4bea416674d8c373984b20c8bd55e7db887fd38c6df73463a0647bab"
   license "Apache-2.0"
-  revision 3
+  revision 2
 
   livecheck do
     url :stable
@@ -12,10 +12,11 @@ class Opencv < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "08183e5e5d48cc0ad40050a65ddd86c70bde41435c339ab06ef887f26754e58a"
-    sha256 big_sur:       "6ea488911c616643554ed7a5611c598369820dde4d6fdbc1c3d0ebf76b877ceb"
-    sha256 catalina:      "fba82ab6b60fbb0b892808bb8be6a17ff7805d9e9647705b4c0c656dd2f6a11e"
-    sha256 mojave:        "8a4e0c37ab0cc35a53e31d2ae265a2e5c8d22799d0c88ca582f5e6ed9da515d6"
+    sha256 arm64_big_sur: "eb90e4fc4608ce7285e0836586f1e1db8ffd1c150fa2accfec4574a8368a5bf5"
+    sha256 big_sur:       "a66bb42ee8e14bc77656b330267ad0bf2c83bd2df0abb0f1ad6da357bcbc94f2"
+    sha256 catalina:      "66bfff6d709f9f0dc0875701a05df2fc2c052f48b67a6c91c106a58ac4be1932"
+    sha256 mojave:        "bdd113015b81013f74206b0be03ab37a6d57af9cf924592c8f61658d63aada63"
+    sha256 x86_64_linux:  "e3a9bb3dae0ebc0946ae62b27db3a38744d6a0774f1baed4270d20ae6e77be02"
   end
 
   depends_on "cmake" => :build
@@ -37,9 +38,11 @@ class Opencv < Formula
   depends_on "vtk"
   depends_on "webp"
 
+  uses_from_macos "zlib"
+
   resource "contrib" do
-    url "https://github.com/opencv/opencv_contrib/archive/4.5.1.tar.gz"
-    sha256 "12c3b1ddd0b8c1a7da5b743590a288df0934e5cef243e036ca290c2e45e425f5"
+    url "https://github.com/opencv/opencv_contrib/archive/4.5.3.tar.gz"
+    sha256 "73da052fd10e73aaba2560eaff10cc5177e2dcc58b27f8aedf7c649e24c233bc"
   end
 
   def install
@@ -89,6 +92,20 @@ class Opencv < Formula
       -DPYTHON3_EXECUTABLE=#{Formula["python@3.9"].opt_bin}/python3
     ]
 
+    # Disable precompiled headers and force opencv to use brewed libraries on Linux
+    if OS.linux?
+      args << "-DENABLE_PRECOMPILED_HEADERS=OFF"
+      args << "-DJPEG_LIBRARY=#{Formula["libjpeg"].opt_lib}/libjpeg.so"
+      args << "-DOpenBLAS_LIB=#{Formula["openblas"].opt_lib}/libopenblas.so"
+      args << "-DOPENEXR_ILMIMF_LIBRARY=#{Formula["openexr"].opt_lib}/libIlmImf.so"
+      args << "-DOPENEXR_ILMTHREAD_LIBRARY=#{Formula["openexr"].opt_lib}/libIlmThread.so"
+      args << "-DPNG_LIBRARY=#{Formula["libpng"].opt_lib}/libpng.so"
+      args << "-DPROTOBUF_LIBRARY=#{Formula["protobuf"].opt_lib}/libprotobuf.so"
+      args << "-DTIFF_LIBRARY=#{Formula["libtiff"].opt_lib}/libtiff.so"
+      args << "-DWITH_V4L=OFF"
+      args << "-DZLIB_LIBRARY=#{Formula["zlib"].opt_lib}/libz.so"
+    end
+
     if Hardware::CPU.intel?
       args << "-DENABLE_AVX=OFF" << "-DENABLE_AVX2=OFF"
       args << "-DENABLE_SSE41=OFF" << "-DENABLE_SSE42=OFF" unless MacOS.version.requires_sse42?
@@ -96,16 +113,22 @@ class Opencv < Formula
 
     mkdir "build" do
       system "cmake", "..", *args
-      inreplace "modules/core/version_string.inc", "#{HOMEBREW_SHIMS_PATH}/mac/super/", ""
+      inreplace "modules/core/version_string.inc", Superenv.shims_path, ""
+
       system "make"
       system "make", "install"
+
       system "make", "clean"
       system "cmake", "..", "-DBUILD_SHARED_LIBS=OFF", *args
-      inreplace "modules/core/version_string.inc", "#{HOMEBREW_SHIMS_PATH}/mac/super/", ""
+      inreplace "modules/core/version_string.inc", Superenv.shims_path, ""
+
       system "make"
       lib.install Dir["lib/*.a"]
       lib.install Dir["3rdparty/**/*.a"]
     end
+
+    # Prevent dependents from using fragile Cellar paths
+    inreplace lib/"pkgconfig/opencv#{version.major}.pc", prefix, opt_prefix
   end
 
   test do

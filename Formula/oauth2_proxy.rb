@@ -1,16 +1,18 @@
 class Oauth2Proxy < Formula
   desc "Reverse proxy for authenticating users via OAuth 2 providers"
   homepage "https://oauth2-proxy.github.io/oauth2-proxy/"
-  url "https://github.com/oauth2-proxy/oauth2_proxy/archive/v7.0.1.tar.gz"
-  sha256 "61a6ade340bef8a92e63e1a4be4d5498190b691f4eaeb4c7325dd66fbfe9bfd9"
+  url "https://github.com/oauth2-proxy/oauth2_proxy/archive/v7.1.3.tar.gz"
+  sha256 "b6d45f3b44a98002ce8f3b581ffd79ade33fb19f374093df43564464439257ad"
   license "MIT"
-  head "https://github.com/oauth2-proxy/oauth2-proxy.git"
+  head "https://github.com/oauth2-proxy/oauth2-proxy.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "54f7af022742e2f5e749aa2f1d6aac0e5130d7f017b178edae62deb760088d36"
-    sha256 cellar: :any_skip_relocation, big_sur:       "fadef8f69ce44469257ece86f89f59f08746ff82303f3b5595c1509af841aee8"
-    sha256 cellar: :any_skip_relocation, catalina:      "b2d59b973929760ce53e8ccfa248db721e9712889418b9fa51a05c8e416774c5"
-    sha256 cellar: :any_skip_relocation, mojave:        "5a7952a20c808199260d81aa8e99b3d6ac9ea42257d1e969e631a0f8a0fed36f"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "30e32e8b0b482dfd924fbabc8eb909e91afd46340f2c446fa779edd44c697ebb"
+    sha256 cellar: :any_skip_relocation, big_sur:       "070c01170bb8b590d5b4d2d058a6dc20305dd6d00d1aa0691cecf4d55a8902be"
+    sha256 cellar: :any_skip_relocation, catalina:      "36d3b76fe43e2c2756578afffacfb6f9b718f446020502fd9d108a46f948c9ab"
+    sha256 cellar: :any_skip_relocation, mojave:        "c4913f7f9acb77035f20c565da9cfb6011cb252101bda0ebd1ce8cc231766206"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "08c840654a0a4378635e17f3bb4f39dfcb9f0d39ea747d91cab20b243f94bd48"
   end
 
   depends_on "go" => :build
@@ -29,30 +31,10 @@ class Oauth2Proxy < Formula
     EOS
   end
 
-  plist_options manual: "oauth2-proxy"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>KeepAlive</key>
-          <true/>
-          <key>ProgramArguments</key>
-          <array>
-              <string>#{opt_bin}/oauth2-proxy</string>
-              <string>--config=#{etc}/oauth2-proxy/oauth2-proxy.cfg</string>
-          </array>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"oauth2-proxy", "--config=#{etc}/oauth2-proxy/oauth2-proxy.cfg"]
+    keep_alive true
+    working_dir HOMEBREW_PREFIX
   end
 
   test do

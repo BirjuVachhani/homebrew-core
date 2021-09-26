@@ -4,25 +4,52 @@ class GatsbyCli < Formula
   desc "Gatsby command-line interface"
   homepage "https://www.gatsbyjs.org/docs/gatsby-cli/"
   # gatsby-cli should only be updated every 10 releases on multiples of 10
-  url "https://registry.npmjs.org/gatsby-cli/-/gatsby-cli-3.0.0.tgz"
-  sha256 "125ce21194fcea367fe75ac10a7e5d0479ad5ec05eae5ed2368485838b0bfeef"
+  url "https://registry.npmjs.org/gatsby-cli/-/gatsby-cli-3.14.0.tgz"
+  sha256 "6bc6740d9e610c8fa7f4da58cd3a0fb147a70e782f1aebdab6c29331396713d4"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "9b8eac78b3b56f72f515245e9b69b723fe108413db1d458f4d758cc84cf0a47a"
-    sha256 cellar: :any_skip_relocation, big_sur:       "0cfb33a69794490c0ea899a6e448c3c6f1842a4467c285d68d2afb331f885ec3"
-    sha256 cellar: :any_skip_relocation, catalina:      "83a25c0105c0770d5256d2f0c862016cb53370780a2866ce74f11f05c6042d8a"
-    sha256 cellar: :any_skip_relocation, mojave:        "9211d5a4bc06b2ea35f95ed0aa6c844a677d5e2d6f92a687369188c791063427"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "33bb44eea9c8b817bad61cd5630dfaaa57eebf14eb9a304c381fe9f3dfcfed96"
+    sha256 cellar: :any_skip_relocation, big_sur:       "30192f2c827360ed07282a103ec92628764d5f268e7fc33108919174f025e7c1"
+    sha256 cellar: :any_skip_relocation, catalina:      "30192f2c827360ed07282a103ec92628764d5f268e7fc33108919174f025e7c1"
+    sha256 cellar: :any_skip_relocation, mojave:        "30192f2c827360ed07282a103ec92628764d5f268e7fc33108919174f025e7c1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "e51dee90e46ea3e6c10080cba0391271ba1f810fe2a4f42453df1e1c66ab5be1"
   end
 
   depends_on "node"
 
+  on_macos do
+    depends_on "macos-term-size"
+  end
+
+  on_linux do
+    depends_on "xsel"
+  end
+
   def install
     system "npm", "install", *Language::Node.std_npm_install_args(libexec)
-    bin.install_symlink Dir["#{libexec}/bin/*"]
+    bin.install_symlink Dir[libexec/"bin/*"]
 
     # Avoid references to Homebrew shims
-    rm_f "#{libexec}/lib/node_modules/gatsby-cli/node_modules/websocket/builderror.log"
+    rm_f libexec/"lib/node_modules/gatsby-cli/node_modules/websocket/builderror.log"
+
+    term_size_vendor_dir = libexec/"lib/node_modules/#{name}/node_modules/term-size/vendor"
+    term_size_vendor_dir.rmtree # remove pre-built binaries
+    if OS.mac?
+      macos_dir = term_size_vendor_dir/"macos"
+      macos_dir.mkpath
+      # Replace the vendored pre-built term-size with one we build ourselves
+      ln_sf (Formula["macos-term-size"].opt_bin/"term-size").relative_path_from(macos_dir), macos_dir
+    end
+
+    clipboardy_fallbacks_dir = libexec/"lib/node_modules/#{name}/node_modules/clipboardy/fallbacks"
+    clipboardy_fallbacks_dir.rmtree # remove pre-built binaries
+    if OS.linux?
+      linux_dir = clipboardy_fallbacks_dir/"linux"
+      linux_dir.mkpath
+      # Replace the vendored pre-built xsel with one we build ourselves
+      ln_sf (Formula["xsel"].opt_bin/"xsel").relative_path_from(linux_dir), linux_dir
+    end
   end
 
   test do

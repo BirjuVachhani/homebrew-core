@@ -1,18 +1,17 @@
 class EfmLangserver < Formula
   desc "General purpose Language Server"
   homepage "https://github.com/mattn/efm-langserver"
-  url "https://github.com/mattn/efm-langserver.git",
-    tag:      "v0.0.26",
-    revision: "26be4445542b8aa1aa0233a856ade7161644035c"
+  url "https://github.com/mattn/efm-langserver/archive/v0.0.37.tar.gz"
+  sha256 "6c175b3baa7934e34898a90197397d3aed2827ceeb00fd4eb9ff03bddb3cf565"
   license "MIT"
-  head "https://github.com/mattn/efm-langserver.git"
+  head "https://github.com/mattn/efm-langserver.git", branch: "master"
 
   bottle do
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "de91d8053b75c1268fb683b94cd74a873af5395595208788a51fdf2c885f9b5c"
-    sha256 cellar: :any_skip_relocation, big_sur:       "d363409ef73963e427e1af1df473993c40fa1ee57fd471eb5e726b5ab9f31bc5"
-    sha256 cellar: :any_skip_relocation, catalina:      "15cde7a009c074ded83f8293fdbeb0b21e61dc44776e3907b5c9ba924ff45ca3"
-    sha256 cellar: :any_skip_relocation, mojave:        "3386a4a8e1cd2952e08454483f4611b16589e7829ac1ba0a76e1fe6e715cdc8f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "6ef394cfe93aeeec10c28594472509b78c39429fdb5f8df0ad920d7f46a38582"
+    sha256 cellar: :any_skip_relocation, big_sur:       "b9a805baeac648cfe331aad089ba6a6f5580c60277adb656d3a834039a89cdd2"
+    sha256 cellar: :any_skip_relocation, catalina:      "b9a805baeac648cfe331aad089ba6a6f5580c60277adb656d3a834039a89cdd2"
+    sha256 cellar: :any_skip_relocation, mojave:        "b9a805baeac648cfe331aad089ba6a6f5580c60277adb656d3a834039a89cdd2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "9de97af411635b491006fbc55bf7dc805b92617f8a38749c90791f5abb2671e7"
   end
 
   depends_on "go" => :build

@@ -2,10 +2,10 @@ class Octant < Formula
   desc "Kubernetes introspection tool for developers"
   homepage "https://octant.dev"
   url "https://github.com/vmware-tanzu/octant.git",
-      tag:      "v0.17.0",
-      revision: "7fded9570239df80f75fa6cf9f4a6ec17945a7e3"
+      tag:      "v0.24.0",
+      revision: "5a8648921cc2779eb62a0ac11147f12aa29f831c"
   license "Apache-2.0"
-  head "https://github.com/vmware-tanzu/octant.git"
+  head "https://github.com/vmware-tanzu/octant.git", branch: "master"
 
   livecheck do
     url :stable
@@ -13,14 +13,19 @@ class Octant < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "23b00a85b2e55227064438513170540974ad15e41ec61381eec81b34347c6fbe"
-    sha256 cellar: :any_skip_relocation, big_sur:       "7aaa68d4f40aa80157ebd742f8c2daa7e6669302adf2caed6574d28ef4e09ddf"
-    sha256 cellar: :any_skip_relocation, catalina:      "553b8b8dccc524c09141fea90a62c4c11a8dc26a5c7c9996e4adfe8be2041e85"
-    sha256 cellar: :any_skip_relocation, mojave:        "674f1f38df2d07bbd9f0aace72b5258b5f08ef604dd57c4a6ac2533298357a32"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "779435947bf68cdda1fed06f6dc3986f6818afd6a4c71e42524d865dd2afb9b4"
+    sha256 cellar: :any_skip_relocation, big_sur:       "7b5920d5e5e9ca14e34d27d09fa32877f20818d136470896d1e2434f1e09aa3e"
+    sha256 cellar: :any_skip_relocation, catalina:      "8e29c1b51ec3b2d1c9b5cdc0de357cd41851f4f0df42c07afe270b6078595cf4"
+    sha256 cellar: :any_skip_relocation, mojave:        "e8d3d6fbaf7cd9f368ab7f010be4ce869e841aea1e124f7dd69ebcb98310eb75"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "27709ab5ecfc271d40b1ff8c6f984b6edd9694bc5d2929023448d1a96544f37d"
   end
 
   depends_on "go" => :build
   depends_on "node" => :build
+
+  on_linux do
+    depends_on "pkg-config" => :build
+  end
 
   def install
     ENV["GOPATH"] = buildpath
@@ -35,16 +40,16 @@ class Octant < Formula
       system "go", "run", "build.go", "go-install"
       ENV.prepend_path "PATH", buildpath/"bin"
 
-      system "go", "generate", "./pkg/plugin/plugin.go"
       system "go", "run", "build.go", "web-build"
 
-      build_time = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
       ldflags = ["-X \"main.version=#{version}\"",
                  "-X \"main.gitCommit=#{Utils.git_head}\"",
-                 "-X \"main.buildTime=#{build_time}\""]
+                 "-X \"main.buildTime=#{time.iso8601}\""].join(" ")
 
-      system "go", "build", "-o", bin/"octant", "-ldflags", ldflags.join(" "),
-              "-v", "./cmd/octant"
+      tags = "embedded exclude_graphdriver_devicemapper exclude_graphdriver_btrfs containers_image_openpgp"
+
+      system "go", "build", *std_go_args(ldflags: ldflags),
+             "-tags", tags, "-v", "./cmd/octant"
     end
   end
 

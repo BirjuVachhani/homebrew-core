@@ -1,10 +1,10 @@
 class Openimageio < Formula
   desc "Library for reading, processing and writing images"
   homepage "https://openimageio.org/"
-  url "https://github.com/OpenImageIO/oiio/archive/Release-2.2.12.0.tar.gz"
-  sha256 "6010b0642b5bf9c045c397a0f0a7efec232fdaffb49984d449073d006e9004a6"
+  url "https://github.com/OpenImageIO/oiio/archive/v2.2.18.0.tar.gz"
+  sha256 "72597619f09b60cc2afc18f378b40fbec62701112957f43cff162dd9a52a26ce"
   license "BSD-3-Clause"
-  head "https://github.com/OpenImageIO/oiio.git"
+  head "https://github.com/OpenImageIO/oiio.git", branch: "master"
 
   livecheck do
     url :stable
@@ -13,9 +13,11 @@ class Openimageio < Formula
   end
 
   bottle do
-    sha256 big_sur:  "3df83ab1ae7839a94676222239912f28cc4192ba977fe44acebd07c20b678f76"
-    sha256 catalina: "8c040bf300de4c716578d20cd0cab302ede08588761fa1f56e45ca98d245cbab"
-    sha256 mojave:   "940b43b047c56509bb52fe39912ac9cf3cfec63525e706a9f1ff0df79c15c48f"
+    sha256 cellar: :any,                 arm64_big_sur: "5e17b7c08f795f213d4457a7f7942f17df1eaadbaf64b6036b2bacb1b7798f29"
+    sha256 cellar: :any,                 big_sur:       "263b0577dff6a7834f4de270f6f56fec485c2ee872f39180d90c458da4e0a5f9"
+    sha256 cellar: :any,                 catalina:      "e8a0028c161a4f6b1e814ac362a9f251ced660c76a375524f9a1c20e21115c99"
+    sha256 cellar: :any,                 mojave:        "cddc71a90bb3a720bb1ca7324cb69c9161d42594da8c4668ed7733ee1e0d7d40"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "60a3a661966a15c3786c510069516c182bba34e92256065f1c7eec184fd46fda"
   end
 
   depends_on "cmake" => :build
@@ -25,7 +27,7 @@ class Openimageio < Formula
   depends_on "ffmpeg"
   depends_on "freetype"
   depends_on "giflib"
-  depends_on "ilmbase"
+  depends_on "imath"
   depends_on "jpeg"
   depends_on "libheif"
   depends_on "libpng"
@@ -51,9 +53,13 @@ class Openimageio < Formula
       -DUSE_QT=OFF
     ]
 
-    # CMake picks up the system's python dylib, even if we have a brewed one.
+    # CMake picks up the system's python shared library, even if we have a brewed one.
     py3ver = Language::Python.major_minor_version Formula["python@3.9"].opt_bin/"python3"
-    py3prefix = Formula["python@3.9"].opt_frameworks/"Python.framework/Versions/#{py3ver}"
+    py3prefix = if OS.mac?
+      Formula["python@3.9"].opt_frameworks/"Python.framework/Versions/#{py3ver}"
+    else
+      Formula["python@3.9"].opt_prefix
+    end
 
     ENV["PYTHONPATH"] = lib/"python#{py3ver}/site-packages"
 

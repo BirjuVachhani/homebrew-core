@@ -4,7 +4,7 @@ class Cubeb < Formula
   url "https://github.com/kinetiknz/cubeb/archive/cubeb-0.2.tar.gz"
   sha256 "cac10876da4fa3b3d2879e0c658d09e8a258734562198301d99c1e8228e66907"
   license "ISC"
-  head "https://github.com/kinetiknz/cubeb.git"
+  head "https://github.com/kinetiknz/cubeb.git", branch: "master"
 
   bottle do
     sha256 cellar: :any, arm64_big_sur: "e56366a9d51f95c573e9bcc0a7f8985e4607cf88a9e6a87c0f2193a363c18a93"
@@ -15,7 +15,6 @@ class Cubeb < Formula
     sha256 cellar: :any, sierra:        "f89e89027370ea9da99f72f0af0529f9b63fbe31c434d3ccafdc7230664a41c2"
     sha256 cellar: :any, el_capitan:    "f7e738b374bb07e1c420e56dfeb72caa814495b446c71d8158ef98c9b33d3a60"
     sha256 cellar: :any, yosemite:      "b3cff6ba7008cc764f94281f7759f5d6d2a09a3bdb92f5f6e93be7d6f3ec2405"
-    sha256 cellar: :any, mavericks:     "f239e3b4cc459b4e0e3f4630229242a351dc833dcb385e7badb16208a53f3265"
   end
 
   depends_on "autoconf" => :build
@@ -84,7 +83,7 @@ class Cubeb < Formula
       }
     EOS
     system "cc", "-o", "test", "#{testpath}/test.c", "-L#{lib}", "-lcubeb"
-    assert_no_match(/FAIL:.*/, shell_output("#{testpath}/test"),
+    refute_match(/FAIL:.*/, shell_output("#{testpath}/test"),
                     "Basic sanity test failed.")
   end
 end

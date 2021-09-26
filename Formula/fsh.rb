@@ -5,6 +5,11 @@ class Fsh < Formula
   sha256 "9600882648966272c264cf3f1c41c11c91e704f473af43d8d4e0ac5850298826"
   license "GPL-2.0"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?fsh[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "b68fa920622faedc3241756ed4b5b3498d58a8ff8cb2a236fee0eb7ebc7a1883"
     sha256 cellar: :any_skip_relocation, big_sur:       "64ff82df619631ff9e4642c5fc5c27d1d1d94da82f36c2a0492090489278a957"
@@ -14,7 +19,6 @@ class Fsh < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "13a7134ef9d20899642d8dd96e77603d74573cf3a0e1ef5063f6eefc856dbd37"
     sha256 cellar: :any_skip_relocation, el_capitan:    "cec52eb07f9db79b15ff5907f30363bbb538c01b7c4eb7ae8634e7ce17eb5431"
     sha256 cellar: :any_skip_relocation, yosemite:      "8a49ad906b045a293259c199fd5d1737894099c487b1bfc83fb60d18acf065ac"
-    sha256 cellar: :any_skip_relocation, mavericks:     "ed852d51f5a0a4024d4a195c9cffd604758a11a115620a3da0975b541c912770"
   end
 
   def install

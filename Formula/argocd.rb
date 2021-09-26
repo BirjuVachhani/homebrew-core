@@ -2,23 +2,21 @@ class Argocd < Formula
   desc "GitOps Continuous Delivery for Kubernetes"
   homepage "https://argoproj.io"
   url "https://github.com/argoproj/argo-cd.git",
-      tag:      "v1.8.7",
-      revision: "eb3d1fb84b9b77cdffd70b14c4f949f1c64a9416"
+      tag:      "v2.1.2",
+      revision: "7af9dfb3524c13e941ab604e36e49a617fe47d2e"
   license "Apache-2.0"
-  revision 1
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "ca05ba87d8052af20f79a28fcc5822f0ac10b3d072ea88a2ea06118503e2aa11"
-    sha256 cellar: :any_skip_relocation, big_sur:       "32ba976ad68b3fdb6fb0ebe8364885c72e40dae653caf846f70806d2b5a4287c"
-    sha256 cellar: :any_skip_relocation, catalina:      "dc3a6ea221d0b2aa2455f6c7fe1ded2784d5ada329a39c9a24d413b6f4d96b18"
-    sha256 cellar: :any_skip_relocation, mojave:        "e8baffe94bf2cacbbcedb31248a6a8609556a45f6b49e953fe6b7f944bc77e76"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "f4f483beb6a7c70df81e188b6ad7b928c5c7fc912852e18e40066914cd7bb054"
+    sha256 cellar: :any_skip_relocation, big_sur:       "63f630ee37dd90cde8d46db59ebd2d124d1786e2b45939472c7ed054f586bc01"
+    sha256 cellar: :any_skip_relocation, catalina:      "9b013c346eda8d9d3660217e44c3060e5c189a173d4a43c43cd917ed138bbc96"
+    sha256 cellar: :any_skip_relocation, mojave:        "26199f8b6cd7719cc1fe9b61a37e5262c2f2b9a404dce288cc38eccbc265a700"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "670e76d95c136606bfbe23aeea210446249b009f2231f5bb86cf86d51b63cfb7"
   end
 
   depends_on "go" => :build
 
   def install
-    # this needs to be remove to prevent multiple 'operation not permitted' errors
-    inreplace "Makefile", "CGO_ENABLED=0", ""
     system "make", "cli-local"
     bin.install "dist/argocd"
 

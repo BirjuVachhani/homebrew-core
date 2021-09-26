@@ -3,17 +3,16 @@ class GobjectIntrospection < Formula
 
   desc "Generate introspection data for GObject libraries"
   homepage "https://gi.readthedocs.io/en/latest/"
-  url "https://download.gnome.org/sources/gobject-introspection/1.66/gobject-introspection-1.66.1.tar.xz"
-  sha256 "dd44a55ee5f426ea22b6b89624708f9e8d53f5cc94e5485c15c87cb30e06161d"
+  url "https://download.gnome.org/sources/gobject-introspection/1.70/gobject-introspection-1.70.0.tar.xz"
+  sha256 "902b4906e3102d17aa2fcb6dad1c19971c70f2a82a159ddc4a94df73a3cafc4a"
   license all_of: ["GPL-2.0-or-later", "LGPL-2.0-or-later", "MIT"]
-  revision 1
 
   bottle do
-    sha256 arm64_big_sur: "2d82497ba4828a88c50e4842a2f78849843b31dc12263591f3e1ce578a61c199"
-    sha256 big_sur:       "e5894b5eec0b33c9d00d0b7b1159cdfe6a2947fcf9ac9ade5ff621f2df7932df"
-    sha256 catalina:      "3e85468a3324cb560775e024c6fd52212af73994898b381faff9aad5baa2fdb6"
-    sha256 mojave:        "1d42d9c900dab307aefddffe723140ec2dfa25201426b4426c76cca28a4c46fa"
-    sha256 high_sierra:   "e22482d7c20cefd6c020eb7bb3406a9da8e159a128a700fa9d13983c3da426e7"
+    sha256 arm64_big_sur: "03b9152f0a5a212197934b2d9f0b403166a59f5e98a1f5641344d21a27640644"
+    sha256 big_sur:       "96e7c0007fa6a2b1d602d28761df216109f55d7e6722da1f5e04086960be6a09"
+    sha256 catalina:      "7502549ca04091d2956a9e75fafb6f11ec89b1f549f83d70eefd70aeca01ff02"
+    sha256 mojave:        "b54d2609d522a28371816f7c3a95f67e4024c7db372c1c0cb672c420f7faaf9b"
+    sha256 x86_64_linux:  "bd4962d70fcda1762926d9f5738fe97c1b32a228592147271210234eab94f574"
   end
 
   depends_on "bison" => :build
@@ -25,11 +24,19 @@ class GobjectIntrospection < Formula
   depends_on "pkg-config"
   depends_on "python@3.9"
 
-  uses_from_macos "flex"
+  uses_from_macos "flex" => :build
 
   resource "tutorial" do
     url "https://gist.github.com/7a0023656ccfe309337a.git",
         revision: "499ac89f8a9ad17d250e907f74912159ea216416"
+  end
+
+  # Fix library search path on non-/usr/local installs (e.g. Apple Silicon)
+  # See: https://github.com/Homebrew/homebrew-core/issues/75020
+  #      https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/273
+  patch do
+    url "https://gitlab.gnome.org/tschoonj/gobject-introspection/-/commit/a7be304478b25271166cd92d110f251a8742d16b.diff"
+    sha256 "740c9fba499b1491689b0b1216f9e693e5cb35c9a8565df4314341122ce12f81"
   end
 
   def install
@@ -41,7 +48,9 @@ class GobjectIntrospection < Formula
 
     mkdir "build" do
       system "meson", *std_meson_args,
-        "-Dpython=#{Formula["python@3.9"].opt_bin}/python3", ".."
+        "-Dpython=#{Formula["python@3.9"].opt_bin}/python3",
+        "-Dextra_library_paths=#{HOMEBREW_PREFIX}/lib",
+        ".."
       system "ninja", "-v"
       system "ninja", "install", "-v"
       bin.find { |f| rewrite_shebang detected_python_shebang, f }

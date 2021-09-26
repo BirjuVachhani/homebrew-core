@@ -1,31 +1,53 @@
 class Ncspot < Formula
   desc "Cross-platform ncurses Spotify client written in Rust"
   homepage "https://github.com/hrkfdn/ncspot"
-  url "https://github.com/hrkfdn/ncspot/archive/v0.4.0.tar.gz"
-  sha256 "d43785832cb3283aa8969b366916a2cbd72c5511b6d429aaae306da5287caea6"
+  url "https://github.com/hrkfdn/ncspot/archive/v0.8.2.tar.gz"
+  sha256 "86274e3115d11efc5cd14389f0f52674ef1353f2943304b9b014afd7f16122ab"
   license "BSD-2-Clause"
+  revision 1
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "18e6e5f4c39f6b98a58ac1f0ebafa1d55e0c3a767dd43e5a13494175e34c8f29"
-    sha256 cellar: :any_skip_relocation, big_sur:       "e18c594f6014ea5e02b00a8393d7f34dd3f7f52ce51c8650105709ae1966122b"
-    sha256 cellar: :any_skip_relocation, catalina:      "6e503a3e3dc1752b3a034c29bd69f7db7e64b16475e7e1496abd74c1e2038dea"
-    sha256 cellar: :any_skip_relocation, mojave:        "35a09c9fe20a5a3a5e02e274d9d25b551274953b939b1b9995451d03b68cbf2c"
+    sha256 cellar: :any,                 arm64_big_sur: "006908520bb2b297ab38570481fd5b2d51a2668549977ae800a9a2d2ad1ff77b"
+    sha256 cellar: :any,                 big_sur:       "05255511d98f0726723947f1ece3a6ea0bc489a19d39deff5d93729ce6462e6a"
+    sha256 cellar: :any,                 catalina:      "e8ba2b94588303c1cdf4719b9f9470a89a8d4b235f9cb3aea32f3376dbc8fb6b"
+    sha256 cellar: :any,                 mojave:        "28aae6e35fe7d5749ab7b2d81d4905e85f821ad97c565e8ab10b2da8f401f545"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "acfb22cd6fb3be1ca6f1d01bd30b376ca86993ff89c57a981ed43df101bcf905"
   end
 
   depends_on "python@3.9" => :build
   depends_on "rust" => :build
+  depends_on "portaudio"
+
+  uses_from_macos "ncurses"
+
+  on_linux do
+    depends_on "pkg-config" => :build
+    depends_on "alsa-lib"
+    depends_on "dbus"
+    depends_on "libxcb"
+    depends_on "openssl@1.1" # Uses Secure Transport on macOS
+  end
 
   def install
     ENV["COREAUDIO_SDK_PATH"] = MacOS.sdk_path_if_needed
-    system "cargo", "install",
-      "--no-default-features", "--features", "rodio_backend,cursive/pancurses-backend", *std_cargo_args
+    system "cargo", "install", "--no-default-features",
+                               "--features", "portaudio_backend,cursive/pancurses-backend,share_clipboard",
+                               *std_cargo_args
   end
 
   test do
-    pid = fork { exec "#{bin}/ncspot -b . -d debug.log 2>&1 >/dev/null" }
-    sleep 2
-    Process.kill "TERM", pid
+    assert_match version.to_s, shell_output("#{bin}/ncspot --version")
+    assert_match "portaudio", shell_output("#{bin}/ncspot --help")
 
-    assert_match '[ncspot::config] [TRACE] "./.config"', File.read("debug.log")
+    # Linux CI has an issue running `script`-based testcases
+    on_macos do
+      stdin, stdout, wait_thr = Open3.popen2 "script -q /dev/null"
+      stdin.puts "stty rows 80 cols 130"
+      stdin.puts "env LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8 TERM=xterm #{bin}/ncspot -b ."
+      sleep 1
+      Process.kill("INT", wait_thr.pid)
+
+      assert_match "Please login to Spotify", stdout.read
+    end
   end
 end

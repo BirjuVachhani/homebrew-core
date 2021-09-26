@@ -5,6 +5,13 @@ class StyleCheck < Formula
   sha256 "2ae806fcce9e3b80162c64634422dc32d7f0e6f8a81ba5bc7879358744b4e119"
   license "GPL-2.0"
 
+  # The homepage links to an unversioned tarball (style-check-current.tar.gz)
+  # and the GitHub repository (https://github.com/nspring/style-check) has no
+  # tags.
+  livecheck do
+    skip "No version information available to check"
+  end
+
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "225c5a3dd8f66d7b42f60d165aa7190e252f4432bf0c41cfed8216746bbbbfef"
     sha256 cellar: :any_skip_relocation, big_sur:       "ad0fe7316475b3384c68b37f288a76e9e20933fe382dd28c3e93944ecb3cf52d"
@@ -14,7 +21,6 @@ class StyleCheck < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "1a6787ed0c5cbe6ee567e112b16d5d32193bb0dacbf23e515f512df3287a3abd"
     sha256 cellar: :any_skip_relocation, el_capitan:    "8ad833cef9ca35a1ae95569f93c8936a82c6d6039e3bd4560e2b1dc93fd029d8"
     sha256 cellar: :any_skip_relocation, yosemite:      "08759f3a407af4dab0310f4a02ee18f15f2104011d702a300adbe9d33bcde0f5"
-    sha256 cellar: :any_skip_relocation, mavericks:     "afeff378c5e3aac20d3fa3756d7dbd85242f6d4d846e9cd670f3119069e83a52"
   end
 
   def install

@@ -1,10 +1,10 @@
 class Sslscan < Formula
   desc "Test SSL/TLS enabled services to discover supported cipher suites"
   homepage "https://github.com/rbsec/sslscan"
-  url "https://github.com/rbsec/sslscan/archive/2.0.8.tar.gz"
-  sha256 "c21f12082bf554908d824fcd2ce342dff1a1dbcab98efa9ea033f5ebdec7974e"
+  url "https://github.com/rbsec/sslscan/archive/2.0.10.tar.gz"
+  sha256 "bb7bb0ff037aa5579b3ee0cf91aa41ab04ac073592b5d95ad3fab820f5000f6e"
   license "GPL-3.0-or-later"
-  head "https://github.com/rbsec/sslscan.git"
+  head "https://github.com/rbsec/sslscan.git", branch: "master"
 
   livecheck do
     url :stable
@@ -12,18 +12,19 @@ class Sslscan < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "ddb78bfa279f0dd7a40a7cf42663f315cd4fe02451a573c10db683c7c992c8ce"
-    sha256 cellar: :any, big_sur:       "c4d36dd15745281e258416b21eb884891f045a0d822d9d6391ddc1ed1a83e429"
-    sha256 cellar: :any, catalina:      "3fc799c6195682f4002ac57c0ccb0c69cee753227d5aa898f522d868d9a46673"
-    sha256 cellar: :any, mojave:        "5ebaa3049ff956d91d8aebb542c6b0b4759b268c5f4a67347d2b88a8f2af86fd"
+    sha256 cellar: :any,                 arm64_big_sur: "f5b4783554adaf8668bd962997f47b666acc0e5b83c5dcf32744371e0a19e5fd"
+    sha256 cellar: :any,                 big_sur:       "dd0b57a82a99814e2e21c8d8b076207b7cc1824ce4f2ae6e10ad57eb318c3f89"
+    sha256 cellar: :any,                 catalina:      "e13086894f20487eee91a42160b7b4d891851e26a23184be8139bca2f0392022"
+    sha256 cellar: :any,                 mojave:        "30d8baa596df4a6ccade6d02bb77f73747d0c5dae2518bf0082f9aaf2fd8351b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "4922f8701dfe20d818eee4fcf6ba010b7da4c927ad0389e00181eb993a4d0d71"
   end
 
   depends_on "openssl@1.1"
 
   def install
-    # use `libcrypto.dylib` built from `openssl@1.1`
+    # use `libcrypto.dylib|so` built from `openssl@1.1`
     inreplace "Makefile", "static: openssl/libcrypto.a",
-                          "static: #{Formula["openssl@1.1"].opt_lib}/libcrypto.dylib"
+                          "static: #{Formula["openssl@1.1"].opt_lib}/#{shared_library("libcrypto")}"
 
     system "make", "static"
     system "make", "install", "PREFIX=#{prefix}"

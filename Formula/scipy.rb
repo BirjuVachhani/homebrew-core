@@ -1,18 +1,21 @@
 class Scipy < Formula
   desc "Software for mathematics, science, and engineering"
   homepage "https://www.scipy.org"
-  url "https://files.pythonhosted.org/packages/26/68/84dbe18583e79e56e4cee8d00232a8dd7d4ae33bc3acf3be1c347991848f/scipy-1.6.1.tar.gz"
-  sha256 "c4fceb864890b6168e79b0e714c585dbe2fd4222768ee90bc1aa0f8218691b11"
+  url "https://files.pythonhosted.org/packages/47/33/a24aec22b7be7fdb10ec117a95e1e4099890d8bbc6646902f443fc7719d1/scipy-1.7.1.tar.gz"
+  sha256 "6b47d5fa7ea651054362561a28b1ccc8da9368a39514c1bbf6c0977a1c376764"
   license "BSD-3-Clause"
-  head "https://github.com/scipy/scipy.git"
+  head "https://github.com/scipy/scipy.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "77db460fd4323ed36fe928a1bdec4dee2e03aff74190f7d4771fd423d100e6e2"
-    sha256 cellar: :any, big_sur:       "b7fa6bd0b970993177b67d5801b7d1a6a0b21ac26a9fa106da136b930a8a9834"
-    sha256 cellar: :any, catalina:      "3312dead60fc9c8be4356c669be35fc6df547f79e5ad7d2205d51c07183c865e"
-    sha256 cellar: :any, mojave:        "869a09d250583791715494cf5b15ab1d00060f8e9213eec08321826259fba796"
+    sha256 cellar: :any, arm64_big_sur: "65e79aed434b4c9dc97445916046490023e91a578583089d06cd97b96251f1df"
+    sha256 cellar: :any, big_sur:       "7273e64702e01f65615143059f6af35f5226fc938d1ef7d048a644f329dfb93e"
+    sha256 cellar: :any, catalina:      "27ade676309a263bab19e497b66941c18969285318846033213b9af9ea4c2150"
+    sha256 cellar: :any, mojave:        "8e2729704d6789206056dc8887dc110d94cda11f2c6b1e8e0a3485d47e4f678b"
+    sha256               x86_64_linux:  "da77380c3ac02a0a27c6b9c4560af76cf2815adf3129c87a1ef26777d9d2259e"
   end
 
+  depends_on "cython" => :build
+  depends_on "pythran" => :build
   depends_on "swig" => :build
   depends_on "gcc" # for gfortran
   depends_on "numpy"
@@ -21,6 +24,8 @@ class Scipy < Formula
   depends_on "python@3.9"
 
   cxxstdlib_check :skip
+
+  fails_with gcc: "5"
 
   def install
     # Fix for current GCC on Big Sur, which does not like 11 as version value
@@ -43,10 +48,14 @@ class Scipy < Formula
 
     Pathname("site.cfg").write config
 
-    version = Language::Python.major_minor_version Formula["python@3.9"].opt_bin/"python3"
-    ENV["PYTHONPATH"] = Formula["numpy"].opt_lib/"python#{version}/site-packages"
-    ENV.prepend_create_path "PYTHONPATH", lib/"python#{version}/site-packages"
-    system Formula["python@3.9"].opt_bin/"python3", "setup.py", "build", "--fcompiler=gnu95"
+    site_packages = Language::Python.site_packages("python3")
+    ENV.prepend_create_path "PYTHONPATH", Formula["cython"].opt_libexec/site_packages
+    ENV.prepend_create_path "PYTHONPATH", Formula["pythran"].opt_libexec/site_packages
+    ENV.prepend_create_path "PYTHONPATH", Formula["numpy"].opt_prefix/site_packages
+    ENV.prepend_create_path "PYTHONPATH", site_packages
+
+    system Formula["python@3.9"].opt_bin/"python3", "setup.py", "build",
+      "--fcompiler=gfortran", "--parallel=#{ENV.make_jobs}"
     system Formula["python@3.9"].opt_bin/"python3", *Language::Python.setup_install_args(prefix)
   end
 

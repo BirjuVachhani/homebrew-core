@@ -1,7 +1,7 @@
 class Uade < Formula
   desc "Play Amiga tunes through UAE emulation"
   homepage "https://zakalwe.fi/uade/"
-  head "https://gitlab.com/uade-music-player/uade.git"
+  head "https://gitlab.com/uade-music-player/uade.git", branch: "master"
 
   stable do
     url "https://zakalwe.fi/uade/uade2/uade-2.13.tar.bz2"
@@ -10,6 +10,12 @@ class Uade < Formula
     # Upstream patch to fix compiler detection under superenv
     patch :DATA
   end
+
+  livecheck do
+    url "https://zakalwe.fi/uade/download.html"
+    regex(/href=.*?uade[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
     sha256 arm64_big_sur: "44ebe9c6fddd5da6043eccad2c2cca7a55862d4b020b348ab579b88125e43938"
     sha256 big_sur:       "f3df21df8b0f5533248f1a23323c24ce9933b1500bb8b15f26bb430385d05f95"
@@ -19,14 +25,14 @@ class Uade < Formula
     sha256 sierra:        "432a5f95b33416c9bfc29ef4d81ea6d4fab2a568c71c00a9bda034985ed1276b"
     sha256 el_capitan:    "59ddaa5a6d841f436a5d297330ff62b613e446785ad17666c8fb4157d3a7c8db"
     sha256 yosemite:      "454945f35580b0b2bc8f0c7ddeecfae091634f54ee3a367eb14acce7251e5779"
-    sha256 mavericks:     "807b7f5cb5a83348c778003d781d715cec73d37da537e0b11b8138c93aad4938"
+    sha256 x86_64_linux:  "4e9995eda253cbfa248aa486080c04cca295f348e1682d2c10b7ec45a967d46f"
   end
 
   depends_on "pkg-config" => :build
   depends_on "libao"
 
   resource "bencode-tools" do
-    url "https://github.com/heikkiorsila/bencode-tools.git"
+    url "https://github.com/heikkiorsila/bencode-tools.git", branch: "master"
   end
 
   def install
@@ -51,14 +57,14 @@ index 05bfa9b..a73608e 100755
 @@ -399,13 +399,13 @@ if test -n "$sharedir"; then
      uadedatadir="$sharedir"
  fi
- 
+
 -$NATIVECC -v 2>/dev/null >/dev/null
 +$NATIVECC --version 2>/dev/null >/dev/null
  if test "$?" != "0"; then
      echo Native CC "$NATIVECC" not found, please install a C compiler
      exit 1
  fi
- 
+
 -$TARGETCC -v 2>/dev/null >/dev/null
 +$TARGETCC --version 2>/dev/null >/dev/null
  if test "$?" != "0"; then

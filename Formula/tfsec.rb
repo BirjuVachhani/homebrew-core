@@ -1,9 +1,10 @@
 class Tfsec < Formula
-  desc "Static analysis powered security scanner for your terraform code"
-  homepage "https://github.com/tfsec/tfsec"
-  url "https://github.com/tfsec/tfsec/archive/v0.39.6.tar.gz"
-  sha256 "c8e56f367b9978914693db7ca4dec684af2e87660191fde628486322b11b4c3a"
+  desc "Static analysis security scanner for your terraform code"
+  homepage "https://tfsec.dev/"
+  url "https://github.com/aquasecurity/tfsec/archive/v0.58.10.tar.gz"
+  sha256 "8e632adaeb91e78d903971422551d8986bee7daaef56a6c93fa4aaa2b7beff32"
   license "MIT"
+  head "https://github.com/aquasecurity/tfsec.git", branch: "master"
 
   livecheck do
     url :stable
@@ -11,10 +12,11 @@ class Tfsec < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "10ff5a738bc854a2afefdeb237d3454dbcb1926678dfcdc0a20a0bbfffb2258a"
-    sha256 cellar: :any_skip_relocation, big_sur:       "60f7b72fc31c2b3ff284fef3a6780e4a0d230bf259c41402c5385215bf5bd582"
-    sha256 cellar: :any_skip_relocation, catalina:      "1787a26a4a8d632cfa3c5c9b4ebcd7becc3ef629a8feff58169a326f3465f072"
-    sha256 cellar: :any_skip_relocation, mojave:        "f9a23aa6d12487110c4dd7729aacde806656ce10e3a7b9914c5a5c6163cd5500"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "acb89679b5fd6d1573702a8f72cab6655e89d5b5921e994e4dee00cb3eee9ab3"
+    sha256 cellar: :any_skip_relocation, big_sur:       "6a63db47fe3b22807d3e5b6f21a868d22997782756395e4b4708a9a09143fe6f"
+    sha256 cellar: :any_skip_relocation, catalina:      "1bed51dc9f904f8fbf7c67e02640a28526445d105541375ba05614e0692e08ad"
+    sha256 cellar: :any_skip_relocation, mojave:        "4cc1d7fdfe9ddabb11b008ed363650783f1a49262a3c457c9f9158d43dcbac63"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "94ad6959d3bbb3202b05c1fc359268dd93fbc3b6d66c9519ac0321331ef9c95c"
   end
 
   depends_on "go" => :build
@@ -32,13 +34,16 @@ class Tfsec < Formula
       }
     EOS
     (testpath/"bad/brew-validate.tf").write <<~EOS
+      resource "aws_security_group_rule" "world" {
+        description = "A security group triggering tfsec AWS006."
+        type        = "ingress"
+        cidr_blocks = ["0.0.0.0/0"]
       }
     EOS
 
     good_output = shell_output("#{bin}/tfsec #{testpath}/good")
     assert_match "No problems detected!", good_output
-    assert_no_match(/WARNING/, good_output)
-    bad_output = shell_output("#{bin}/tfsec #{testpath}/bad 2>&1")
-    assert_match "WARNING", bad_output
+    bad_output = shell_output("#{bin}/tfsec #{testpath}/bad 2>&1", 1)
+    assert_match "1 potential problems detected.", bad_output
   end
 end

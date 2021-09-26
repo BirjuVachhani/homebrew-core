@@ -3,16 +3,17 @@ class NicotinePlus < Formula
 
   desc "Graphical client for the Soulseek file sharing network"
   homepage "https://nicotine-plus.github.io/nicotine-plus/"
-  url "https://files.pythonhosted.org/packages/e6/09/ab23fdd85bd66a69a1ff6baf87953f03b2dcf8e6d6428c46f1c016cbfcd7/nicotine-plus-3.0.2.tar.gz"
-  sha256 "c621d7effec2497cfe2d439146cf1847ffac2b769f3f470362dfb952b4c1cda6"
+  url "https://files.pythonhosted.org/packages/ee/2d/d8fcc06fb78a294fbc399568fcec4a706c31a681b94ba25b009c8a4377cf/nicotine-plus-3.1.1.tar.gz"
+  sha256 "ce8342fcbc4d6fd50b9c29465eaca45d35c8c7be0a3ef03f5c1d9a594d96ec34"
   license "GPL-3.0-or-later"
-  head "https://github.com/Nicotine-Plus/nicotine-plus.git"
+  head "https://github.com/Nicotine-Plus/nicotine-plus.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "8b4136f965306442c650b2de59859efc4e40a5aff3a755c41527d707fc2d6972"
-    sha256 cellar: :any_skip_relocation, big_sur:       "b03a1dbb5b2c2e7ea5a1503aee224621da27c3a7bd13725390ba8ace0b95ebb4"
-    sha256 cellar: :any_skip_relocation, catalina:      "ee2d59e9cba8ded41ed7a76553ff1b4625e2acbe85e2220a750de6ce0d59fe11"
-    sha256 cellar: :any_skip_relocation, mojave:        "e10c26a215aff2521cb147251a149120fb5e1681e0eff7a0c8ca8fe90dd32991"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "5219c66ab06bc074d62a61bafd3f7015eba1c25669486e72ff5f5be41e65e89b"
+    sha256 cellar: :any_skip_relocation, big_sur:       "1224468b0308e86859ed06db5095b465864cb189320bef6e3108b55da28d1f94"
+    sha256 cellar: :any_skip_relocation, catalina:      "1224468b0308e86859ed06db5095b465864cb189320bef6e3108b55da28d1f94"
+    sha256 cellar: :any_skip_relocation, mojave:        "1224468b0308e86859ed06db5095b465864cb189320bef6e3108b55da28d1f94"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "7c92328243c9d71cc5f1b494a20a8e2ed21ddf97c42c3433c7c681a9586d354f"
   end
 
   depends_on "adwaita-icon-theme"

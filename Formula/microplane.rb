@@ -1,16 +1,17 @@
 class Microplane < Formula
   desc "CLI tool to make git changes across many repos"
   homepage "https://github.com/Clever/microplane"
-  url "https://github.com/Clever/microplane/archive/v0.0.27.tar.gz"
-  sha256 "1d5d1ee676f540ec98a3756783e18d414596ae3b6c034963588820aefca33f14"
+  url "https://github.com/Clever/microplane/archive/v0.0.34.tar.gz"
+  sha256 "289b3df07b3847fecb0d815ff552dad1b1b1e4f662eddc898ca7b1e7d81d6d7c"
   license "Apache-2.0"
   head "https://github.com/Clever/microplane.git"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "e5f59d3025fe6082931697855031cf8ea8c64fadfe401fcfe88458bc9a5514f6"
-    sha256 cellar: :any_skip_relocation, big_sur:       "5b3dd793e96813cfd6ad9fbe6fe1a7fa545a77457c8628bdc0f6d4357199370d"
-    sha256 cellar: :any_skip_relocation, catalina:      "30d91e96a2630225e4d3bcf76445fac1da49f8ff16b494fd71844cdfcfdfaa2e"
-    sha256 cellar: :any_skip_relocation, mojave:        "8752c0fe43df4900deb88b4fd9fac1ffd1241d7aa2c903801d94c2957dbbae54"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "fb8cd7544c9c9801ea665666d9a0abf44fbc9a38c15e4749d2137ab62a4f33ff"
+    sha256 cellar: :any_skip_relocation, big_sur:       "ad84fa0e4efc89cd232632aec23c676ebfc23f787037f0da5a8356dc0b765028"
+    sha256 cellar: :any_skip_relocation, catalina:      "f9e918678833d61cedb4decb86652ccc356665aed0febcc48b30d950bc8c9b71"
+    sha256 cellar: :any_skip_relocation, mojave:        "5105e70832a0200105c87bf33d04e4852d7a01d8eb05ac9d7f7d3816d3f8748a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "2439149f7ad75feb2d3bc41479fb626f8916b1e0796eeef71b69ea630b8afc27"
   end
 
   depends_on "go" => :build

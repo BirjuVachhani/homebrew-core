@@ -1,16 +1,16 @@
 class Enzyme < Formula
   desc "High-performance automatic differentiation of LLVM"
   homepage "https://enzyme.mit.edu"
-  url "https://github.com/wsmoses/Enzyme/archive/v0.0.8.tar.gz"
-  sha256 "96349054789cca84a6f94e8d4c4a9a0f7f4677f31ccceed1cd5bfda9e07ed2b7"
+  url "https://github.com/wsmoses/Enzyme/archive/v0.0.18.tar.gz"
+  sha256 "64fecead54f11797bd17170ffa2bf4b3289bc8720cd2b0541375785bb97b7e2c"
   license "Apache-2.0" => { with: "LLVM-exception" }
-  head "https://github.com/wsmoses/Enzyme.git"
+  head "https://github.com/wsmoses/Enzyme.git", branch: "main"
 
   bottle do
-    sha256 arm64_big_sur: "ef9431ee270b73cbbd721a7993474ca8dbc49d1cf36c84db53bd6add983ed324"
-    sha256 big_sur:       "b8351c059ca3b6fc1f3de0e8a6ccf29fa87820e506bc0cfb03497b18579ab6fd"
-    sha256 catalina:      "cf9a47b84d6f6598fcfb0a048bd99894167821bc08f27b687bf8b58f5ff0b34a"
-    sha256 mojave:        "2233fb600cb1c0d27cf2d2c8abe72e7a4ead4392a244b21500ab079d911c87d9"
+    sha256 cellar: :any, arm64_big_sur: "3528734cc826147e6286875ccac597a64df539ad749f06894e4b7a7b621ddf4f"
+    sha256 cellar: :any, big_sur:       "80e2fb5b9143784c8208967af69bd5f3ff27f71cd6a1dca629ca805f416c02dd"
+    sha256 cellar: :any, catalina:      "e9f0808a68ed91cac12f80f1cb5053f9b93acc1dc00dc220299d8a2e89f17814"
+    sha256 cellar: :any, mojave:        "f10713e873f16fb5afb670312d88cf3f606d0e482d998ffd2bc3a3218797eeb4"
   end
 
   depends_on "cmake" => :build
@@ -41,13 +41,12 @@ class Enzyme < Formula
     EOS
 
     llvm = Formula["llvm"]
-    llvm_version = llvm.version.major
     opt = llvm.opt_bin/"opt"
     ENV["CC"] = llvm.opt_bin/"clang"
 
     system ENV.cc, testpath/"test.c", "-S", "-emit-llvm", "-o", "input.ll", "-O2",
                    "-fno-vectorize", "-fno-slp-vectorize", "-fno-unroll-loops"
-    system opt, "input.ll", "-load=#{opt_lib}/#{shared_library("LLVMEnzyme-#{llvm_version}")}",
+    system opt, "input.ll", "-load=#{opt_lib}/#{shared_library("LLVMEnzyme-#{llvm.version.major}")}",
                 "-enzyme", "-o", "output.ll", "-S"
     system ENV.cc, "output.ll", "-O3", "-o", "test"
 

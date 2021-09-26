@@ -1,20 +1,22 @@
 class Broot < Formula
   desc "New way to see and navigate directory trees"
   homepage "https://dystroy.org/broot/"
-  url "https://github.com/Canop/broot/archive/v1.2.8.tar.gz"
-  sha256 "2951e0970fdae20dbbedaa9fdf666dd73bd64c0060a40884a21d7e1ecfb95f80"
+  url "https://github.com/Canop/broot/archive/v1.6.3.tar.gz"
+  sha256 "c7ef696a9da162a4338790a9e021eddedcc9a5be321bfea5cc2c33b2b2a53472"
   license "MIT"
-  head "https://github.com/Canop/broot.git"
+  head "https://github.com/Canop/broot.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "ad0aaa0691b03bc2847d1644b2e539ee40a409cf22800911320f7a0d5755bb4d"
-    sha256 cellar: :any_skip_relocation, big_sur:       "6c937251652a7147cfe2aa4424a72160bc88f7df631457d6513d0c8171a0b321"
-    sha256 cellar: :any_skip_relocation, catalina:      "4e75e73c1e6aa891091a19b5596a3566605056cf0d78d86ff58842158412aa93"
-    sha256 cellar: :any_skip_relocation, mojave:        "6f50a4e32437728748b394df3e5362e300f8e3fade8cb83a69a635a424cb9492"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "3cff2cf84e7a32b908b85701ea06c6f92e19e25db0e9344b694065816d53cc22"
+    sha256 cellar: :any_skip_relocation, big_sur:       "c6b99746eaef474cfe50304cada0292548a01a03d5a1d3bdbd2e4087d4d8b036"
+    sha256 cellar: :any_skip_relocation, catalina:      "75ecb00808ead30aecf941609b2f77e584c1b787e9f68d24446bc8231a71f5e7"
+    sha256 cellar: :any_skip_relocation, mojave:        "072e7cf407b955b79fd69ca00f224aabcdaba3268cca6ec58663179b669c88b0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "f745b17e4311f7aa9a5e59615af3217bd1b1aca852bbab5c97bb6d1a047c8ab1"
   end
 
   depends_on "rust" => :build
 
+  uses_from_macos "curl" => :build
   uses_from_macos "zlib"
 
   def install
@@ -23,7 +25,7 @@ class Broot < Formula
     # Replace man page "#version" and "#date" based on logic in release.sh
     inreplace "man/page" do |s|
       s.gsub! "#version", version
-      s.gsub! "#date", Time.now.utc.strftime("%Y/%m/%d")
+      s.gsub! "#date", time.strftime("%Y/%m/%d")
     end
     man1.install "man/page" => "broot.1"
 
@@ -39,11 +41,15 @@ class Broot < Formula
   end
 
   test do
+    on_linux do
+      return if ENV["HOMEBREW_GITHUB_ACTIONS"]
+    end
+
     assert_match "A tree explorer and a customizable launcher", shell_output("#{bin}/broot --help 2>&1")
 
     require "pty"
     require "io/console"
-    PTY.spawn(bin/"broot", "--cmd", ":pt", "--no-style", "--out", testpath/"output.txt", err: :out) do |r, w, pid|
+    PTY.spawn(bin/"broot", "--cmd", ":pt", "--color", "no", "--out", testpath/"output.txt", err: :out) do |r, w, pid|
       r.winsize = [20, 80] # broot dependency termimad requires width > 2
       w.write "n\r"
       assert_match "New Configuration file written in", r.read

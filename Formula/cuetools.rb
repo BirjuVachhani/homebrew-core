@@ -4,7 +4,7 @@ class Cuetools < Formula
   url "https://github.com/svend/cuetools/archive/1.4.1.tar.gz"
   sha256 "24a2420f100c69a6539a9feeb4130d19532f9f8a0428a8b9b289c6da761eb107"
   license "GPL-2.0"
-  head "https://github.com/svend/cuetools.git"
+  head "https://github.com/svend/cuetools.git", branch: "master"
 
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "d6065775e7e6286464caa093613104c747720e1b9ea98f29f71abea5a365ac05"
@@ -15,7 +15,6 @@ class Cuetools < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "9456e5957a78f993f5a8cef76aa583ac6a42a8298fb05bded243dbaf810f9a44"
     sha256 cellar: :any_skip_relocation, el_capitan:    "7f0effc75d64fca0f2695b5f7ddb4d8713cc83522d40dcd37842e83c120ac117"
     sha256 cellar: :any_skip_relocation, yosemite:      "81d06ef2e3d98061f332a535b810102c1be0505371c1ac1aed711cf2ae8de5a3"
-    sha256 cellar: :any_skip_relocation, mavericks:     "95216c0df3840b2602e61dd3bef7d4c9b65cec0315e5b23ac87329320d9f6be9"
   end
 
   depends_on "autoconf" => :build

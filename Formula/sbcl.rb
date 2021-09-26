@@ -1,16 +1,17 @@
 class Sbcl < Formula
   desc "Steel Bank Common Lisp system"
   homepage "http://www.sbcl.org/"
-  url "https://downloads.sourceforge.net/project/sbcl/sbcl/2.1.2/sbcl-2.1.2-source.tar.bz2"
-  sha256 "b7710550939855ed49598c4a014483ed120b6991658a2a3b6afa47713dce4c0b"
+  url "https://downloads.sourceforge.net/project/sbcl/sbcl/2.1.8/sbcl-2.1.8-source.tar.bz2"
+  sha256 "a3ea7bafcca051073b3769c1ee79d26c3c47cb4eb2f548b07ace38df14e25546"
   license all_of: [:public_domain, "MIT", "Xerox", "BSD-3-Clause"]
-  head "https://git.code.sf.net/p/sbcl/sbcl.git", shallow: false
+  head "https://git.code.sf.net/p/sbcl/sbcl.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "d915b3200cbce70f8fa0ee4e490bb48b2e8c821870c3b5e640b4ad34741665eb"
-    sha256 cellar: :any_skip_relocation, big_sur:       "4b72ee3689681c976edd70bdf8260dccfc8a91af597a9bc3bb00cb9adaceea5e"
-    sha256 cellar: :any_skip_relocation, catalina:      "6b9e2e3539da50cbdb40cd33e8cf1bbd3414a2c4ac1af01c59040471d2382646"
-    sha256 cellar: :any_skip_relocation, mojave:        "205d6fa7d4c8c0bf18269eca87b38ba47e051935c4e6d29555d4f7c5b93149e7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "df642cb657479a6ae84a6adfc22cafbcb876542fb9b69527b4ca2755ffc15e25"
+    sha256 cellar: :any_skip_relocation, big_sur:       "66401ff5244705458efadcafd54d949c1ed97371d7d66f74112f1ea514035c7b"
+    sha256 cellar: :any_skip_relocation, catalina:      "35994e69427d7a67a06bd82a564342a6e7d39c1cefe98a35de0cd21fb93c72cc"
+    sha256 cellar: :any_skip_relocation, mojave:        "84391dfa0666ab321726098f161b9c30aa1a8be2fbc19227c68184c672265f8d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "ee12ab34263805a2abb4e1c4923dc666712aa1cac3bffd3a495e84fecbfa779a"
   end
 
   depends_on "ecl" => :build

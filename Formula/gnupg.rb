@@ -1,8 +1,8 @@
 class Gnupg < Formula
   desc "GNU Pretty Good Privacy (PGP) package"
   homepage "https://gnupg.org/"
-  url "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.27.tar.bz2"
-  sha256 "34e60009014ea16402069136e0a5f63d9b65f90096244975db5cea74b3d02399"
+  url "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-2.3.2.tar.bz2"
+  sha256 "e1d953e0e296072fca284215103ef168885eaac596c4660c5039a36a83e3041b"
   license "GPL-3.0-or-later"
 
   livecheck do
@@ -11,14 +11,14 @@ class Gnupg < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "e43d39b6d1eb7ed8451ef71fd9ccc37a2505e0c04a68e89290fcd9add362f228"
-    sha256 big_sur:       "6726388722ce3b72733bb9b685c7325a42bfa277b54fadf5c5994a3396b3c35f"
-    sha256 catalina:      "f7e22bee02f43a65794ab1b2bb44bc9650a634fdc2002a102106e78b6c32d2a8"
-    sha256 mojave:        "7250d3b3429e984579c1a1cde3455f63981c3a29d17d23eadce5c45079199bbf"
+    sha256 arm64_big_sur: "941069d6ef19f59b24dfe2f8851fea635f679eb740a595ff0a74ac007181bc99"
+    sha256 big_sur:       "ca228c2800845d8d0e020c3e3359201edc0bac8554cfc3a2e985617eb09b629a"
+    sha256 catalina:      "9d0e847588e735e9f1137b7ccfa73a9439a8653a6949d284e3192e6fb2fdf5a5"
+    sha256 mojave:        "a483dd421a3156007c163969705a617676c78e2780ed7bf9279cbcefc903b904"
+    sha256 x86_64_linux:  "cb12c6aab9f508b977047bf4053047b3f48d010988760c53d4c728d78ba7dae9"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "adns"
   depends_on "gettext"
   depends_on "gnutls"
   depends_on "libassuan"
@@ -29,6 +29,12 @@ class Gnupg < Formula
   depends_on "npth"
   depends_on "pinentry"
 
+  uses_from_macos "sqlite", since: :catalina
+
+  on_linux do
+    depends_on "libidn"
+  end
+
   def install
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
@@ -36,16 +42,25 @@ class Gnupg < Formula
                           "--sbindir=#{bin}",
                           "--sysconfdir=#{etc}",
                           "--enable-all-tests",
-                          "--enable-symcryptrun",
                           "--with-pinentry-pgm=#{Formula["pinentry"].opt_bin}/pinentry"
     system "make"
     system "make", "check"
     system "make", "install"
+
+    # Configure scdaemon as recommended by upstream developers
+    # https://dev.gnupg.org/T5415#145864
+    if OS.mac?
+      # write to buildpath then install to ensure existing files are not clobbered
+      (buildpath/"scdaemon.conf").write <<~EOS
+        disable-ccid
+      EOS
+      pkgetc.install "scdaemon.conf"
+    end
   end
 
   def post_install
     (var/"run").mkpath
-    quiet_system "killall", "gpg-agent"
+    quiet_system "gpgconf", "--reload", "all"
   end
 
   test do

@@ -1,8 +1,8 @@
 class DosboxX < Formula
   desc "DOSBox with accurate emulation and wide testing"
   homepage "https://dosbox-x.com/"
-  url "https://github.com/joncampbell123/dosbox-x/archive/dosbox-x-v0.83.11.tar.gz"
-  sha256 "d65c96349a921e9843914e5b852ef926e4fff3ae22d9ebd8490b534afec85717"
+  url "https://github.com/joncampbell123/dosbox-x/archive/dosbox-x-v0.83.17.tar.gz"
+  sha256 "5e5b4637982e0af8228de8fd38945b49c59a73300437a63964d5154da6dd2d1d"
   license "GPL-2.0-or-later"
   version_scheme 1
   head "https://github.com/joncampbell123/dosbox-x.git"
@@ -13,10 +13,10 @@ class DosboxX < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "b69391d65116d0671de8a81c4f2605edfb0a3d1451e2f713d8cc992c97f48203"
-    sha256 cellar: :any, big_sur:       "d8f94ea5053977241263e0bab8a55bcc7709d1eb4a9c303a082f2be7daf131ba"
-    sha256 cellar: :any, catalina:      "b29cba95b2789ea7c56d9b3dcb85f3729c6ea1d509e944d6395c5f702c189a11"
-    sha256 cellar: :any, mojave:        "0502f349d980682f925eeaf160c06c96cda7247af12e2b39e95cd0ce14ce083a"
+    sha256 cellar: :any, arm64_big_sur: "64ef1bc566adea246055e1791d1e8716751f5695ae61bb799ac259909572cc1a"
+    sha256 cellar: :any, big_sur:       "925b7cdba50055e008b04a989dc216c9059032eaf6ac4753a00e1a6affa6370d"
+    sha256 cellar: :any, catalina:      "1194968c068f8fc805b8aaaa997e7c186d6a4c14f6c3cf48fe33c24224fcddc5"
+    sha256 cellar: :any, mojave:        "f90fd6277f496a58e0dcb1fa3f382dc822531b5aaf4067f2538db4b2d2b50970"
   end
 
   depends_on "autoconf" => :build

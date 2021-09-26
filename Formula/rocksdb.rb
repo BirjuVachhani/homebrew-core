@@ -1,14 +1,17 @@
 class Rocksdb < Formula
   desc "Embeddable, persistent key-value store for fast storage"
   homepage "https://rocksdb.org/"
-  url "https://github.com/facebook/rocksdb/archive/v6.15.5.tar.gz"
-  sha256 "d7b994e1eb4dff9dfefcd51a63f86630282e1927fc42a300b93c573c853aa5d0"
+  url "https://github.com/facebook/rocksdb/archive/v6.22.1.tar.gz"
+  sha256 "2df8f34a44eda182e22cf84dee7a14f17f55d305ff79c06fb3cd1e5f8831e00d"
   license any_of: ["GPL-2.0-only", "Apache-2.0"]
+  head "https://github.com/facebook/rocksdb.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any, big_sur:  "aad14af99b39d155869bbb1f389b6da072890a531cd1e268aeb24ef911415a90"
-    sha256 cellar: :any, catalina: "e40e671dd9b9fe4ac37af9cb5845c085445ddc46dccadb523fa16fbbc9d8a539"
-    sha256 cellar: :any, mojave:   "189185a4b829e09cfb51fd9739f20b908bcc72b0a22327bc132c40a3b76fecbb"
+    sha256 cellar: :any,                 arm64_big_sur: "45189177ab0959692173fb08988788436fe6f9a1f07114fa188f6d84e8dcf4ff"
+    sha256 cellar: :any,                 big_sur:       "762a9842251a4b426f554e952c7e692ed09b8993824cdbfe59fc5bc0a5f627e1"
+    sha256 cellar: :any,                 catalina:      "56152492c55781b815065f817e5dc1c925c1ecf8b817fe050c61311c3e0a572a"
+    sha256 cellar: :any,                 mojave:        "8de2eb0d8682d79e850d832492bf56562b75c794f9f95b7ba6867b44ab9fb79d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "d949d38c3f74118a18f7395ec4df539b8153317dc8bb53c66f52bf3413585e73"
   end
 
   depends_on "cmake" => :build
@@ -20,16 +23,9 @@ class Rocksdb < Formula
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
 
-  # Add artifact suffix to shared library
-  # https://github.com/facebook/rocksdb/pull/7755
-  patch do
-    url "https://github.com/facebook/rocksdb/commit/98f3f3143007bcb5455105a05da7eeecc9cf53a0.patch?full_index=1"
-    sha256 "6fb59cd640ed8c39692855115b72e8aa8db50a7aa3842d53237e096e19f88fc1"
-  end
-
   def install
     ENV.cxx11
-    args = std_cmake_args + %w[
+    args = std_cmake_args + %W[
       -DPORTABLE=ON
       -DUSE_RTTI=ON
       -DWITH_BENCHMARK_TOOLS=OFF
@@ -38,6 +34,7 @@ class Rocksdb < Formula
       -DWITH_SNAPPY=ON
       -DWITH_ZLIB=ON
       -DWITH_ZSTD=ON
+      -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,#{rpath}
     ]
 
     # build regular rocksdb

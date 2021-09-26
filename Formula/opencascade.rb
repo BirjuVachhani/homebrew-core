@@ -1,23 +1,28 @@
 class Opencascade < Formula
   desc "3D modeling and numerical simulation software for CAD/CAM/CAE"
   homepage "https://dev.opencascade.org/"
-  url "https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=refs/tags/V7_5_0;sf=tgz"
-  version "7.5.0"
-  sha256 "c8df7d23051b86064f61299a5f7af30004c115bdb479df471711bab0c7166654"
+  url "https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=refs/tags/V7_5_3;sf=tgz"
+  version "7.5.3"
+  sha256 "cc3d3fd9f76526502c3d9025b651f45b034187430f231414c97dda756572410b"
   license "LGPL-2.1-only"
-  revision 1
 
+  # The first-party download page (https://dev.opencascade.org/release)
+  # references version 7.5.0 and hasn't been updated for later maintenance
+  # releases (e.g., 7.5.3, 7.5.2), so we check the Git tags instead. Release
+  # information is posted at https://dev.opencascade.org/forums/occt-releases
+  # but the text varies enough that we can't reliably match versions from it.
   livecheck do
-    url "https://dev.opencascade.org/release"
-    regex(/href=.*?opencascade[._-]v?(\d+(?:\.\d+)+)\.t/i)
+    url "https://git.dev.opencascade.org/repos/occt.git"
+    regex(/^v?(\d+(?:[._]\d+)+(?:p\d+)?)$/i)
+    strategy :git do |tags, regex|
+      tags.map { |tag| tag[regex, 1]&.gsub("_", ".") }.compact
+    end
   end
 
   bottle do
-    rebuild 1
-    sha256 arm64_big_sur: "ca21853b2cb26e34cf5c3aa6b755689327e023c0b04e4a6d9ff4466a94d8b48e"
-    sha256 big_sur:       "51fd6769b4b4e75062fe5a6486dfe17166471519e1ea8bcb71d5b1f1756d28af"
-    sha256 catalina:      "fb7225acbf5c42a431a30667f5f7e227bf1f68fa1583ea987f0b3caf946c4cab"
-    sha256 mojave:        "1155bf50f284adb9ea20ffa2429a896505f2b7cdec1fe9a24654fb3b94a1f2e8"
+    sha256 cellar: :any, arm64_big_sur: "8952db5aa30f06b1a0bfb8dda92f4aee1d64559e5015796bac0b24f6555fdfef"
+    sha256 cellar: :any, big_sur:       "26b5e960b52eb222a23419139b3b9eb28e8ae5908b2d611d9d4bd02d1aab08c1"
+    sha256 cellar: :any, catalina:      "6d0a12b0f347117f2763274e30eb0b6002c47c830e1f5983ed7ce6295e586ed6"
   end
 
   depends_on "cmake" => :build
@@ -25,7 +30,7 @@ class Opencascade < Formula
   depends_on "rapidjson" => :build
   depends_on "freeimage"
   depends_on "freetype"
-  depends_on "tbb"
+  depends_on "tbb@2020"
   depends_on "tcl-tk"
 
   def install
@@ -39,7 +44,7 @@ class Opencascade < Formula
                     "-D3RDPARTY_FREETYPE_DIR=#{Formula["freetype"].opt_prefix}",
                     "-D3RDPARTY_RAPIDJSON_DIR=#{Formula["rapidjson"].opt_prefix}",
                     "-D3RDPARTY_RAPIDJSON_INCLUDE_DIR=#{Formula["rapidjson"].opt_include}",
-                    "-D3RDPARTY_TBB_DIR=#{Formula["tbb"].opt_prefix}",
+                    "-D3RDPARTY_TBB_DIR=#{Formula["tbb@2020"].opt_prefix}",
                     "-D3RDPARTY_TCL_DIR:PATH=#{tcltk.opt_prefix}",
                     "-D3RDPARTY_TK_DIR:PATH=#{tcltk.opt_prefix}",
                     "-D3RDPARTY_TCL_INCLUDE_DIR:PATH=#{tcltk.opt_include}",

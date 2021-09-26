@@ -1,8 +1,8 @@
 class Stunnel < Formula
   desc "SSL tunneling program"
   homepage "https://www.stunnel.org/"
-  url "https://www.stunnel.org/downloads/stunnel-5.58.tar.gz"
-  sha256 "d4c14cc096577edca3f6a2a59c2f51869e35350b3988018ddf808c88e5973b79"
+  url "https://www.stunnel.org/downloads/stunnel-5.60.tar.gz"
+  sha256 "c45d765b1521861fea9b03b425b9dd7d48b3055128c0aec673bba5ef9b8f787d"
   license "GPL-2.0-or-later"
 
   livecheck do
@@ -11,10 +11,12 @@ class Stunnel < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "47e3d1a9585e643d19bf40bbb20ecc5f7d42519d5975bb599e00fc09ca5b31e0"
-    sha256 cellar: :any, big_sur:       "d58e8c12d8876325031dba9bcd538a60180c43ac30cdc2d0710c0f4535ec1711"
-    sha256 cellar: :any, catalina:      "d80657bc44794018b06497504b5e5231f202cffa9123a29d962fa98d408853d3"
-    sha256 cellar: :any, mojave:        "d8054e955a2e33e8da6afb7ab9a770cf8745ff1741d408d718c27ab91598c588"
+    rebuild 1
+    sha256 cellar: :any,                 arm64_big_sur: "bfd5b6175001e46acdb8751e59d5de7a13a1222fc09309e85a67f70aa35893db"
+    sha256 cellar: :any,                 big_sur:       "db1410a067d25b6286f78d2e8f78f49440afeeee469e0640014e487a1516cd5a"
+    sha256 cellar: :any,                 catalina:      "b05b0d7872c0ee97edf42d1e9acfe7cc52bc8f2ba3daa06064beee068029ccb3"
+    sha256 cellar: :any,                 mojave:        "f69c90ad1073fc0e2c485e6913d39178331ece8be30a737c9078ca152b1dfed0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "b03b0098fe618d67cbfccaa6aa23d09b7d7f490e968f221122ebb2b4d14db3d0"
   end
 
   depends_on "openssl@1.1"
@@ -34,11 +36,16 @@ class Stunnel < Formula
     # This programmatically recreates pem creation used in the tools Makefile
     # which would usually require interactivity to resolve.
     cd "tools" do
-      args = %w[req -new -x509 -days 365 -rand stunnel.rnd -config
-                openssl.cnf -out stunnel.pem -keyout stunnel.pem -sha256 -subj
-                /C=PL/ST=Mazovia\ Province/L=Warsaw/O=Stunnel\ Developers/OU=Provisional\ CA/CN=localhost/]
       system "dd", "if=/dev/urandom", "of=stunnel.rnd", "bs=256", "count=1"
-      system "#{Formula["openssl@1.1"].opt_bin}/openssl", *args
+      system "#{Formula["openssl@1.1"].opt_bin}/openssl", "req",
+        "-new", "-x509",
+        "-days", "365",
+        "-rand", "stunnel.rnd",
+        "-config", "openssl.cnf",
+        "-out", "stunnel.pem",
+        "-keyout", "stunnel.pem",
+        "-sha256",
+        "-subj", "/C=PL/ST=Mazovia Province/L=Warsaw/O=Stunnel Developers/OU=Provisional CA/CN=localhost/"
       chmod 0600, "stunnel.pem"
       (etc/"stunnel").install "stunnel.pem"
     end
@@ -60,33 +67,21 @@ class Stunnel < Formula
     EOS
   end
 
-  plist_options manual: "stunnel"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/stunnel</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"stunnel"]
   end
 
   test do
+    user = if OS.mac?
+      "nobody"
+    else
+      ENV["USER"]
+    end
     (testpath/"tstunnel.conf").write <<~EOS
       cert = #{etc}/stunnel/stunnel.pem
 
-      setuid = nobody
-      setgid = nobody
+      setuid = #{user}
+      setgid = #{user}
 
       [pop3s]
       accept  = 995

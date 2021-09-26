@@ -2,15 +2,16 @@ class Frps < Formula
   desc "Server app of fast reverse proxy to expose a local server to the internet"
   homepage "https://github.com/fatedier/frp"
   url "https://github.com/fatedier/frp.git",
-      tag:      "v0.35.1",
-      revision: "3bf1eb85659ee49aff28dfb70e537b1f54b84365"
+      tag:      "v0.37.1",
+      revision: "997d406ec25832e7d16f140d110e4016f908d8cf"
   license "Apache-2.0"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "bf36d3f6f1e1c871f2df1f8abbc5d5ef0f7e8247752fbe6ff377fd5918dd2272"
-    sha256 cellar: :any_skip_relocation, big_sur:       "dae1eded5cefc7233d05a52703bfc5ef9c70a2023980960a1514665bfdfd7e10"
-    sha256 cellar: :any_skip_relocation, catalina:      "59cf1fb891b1126a981bbf01ee2be2a9e960cc588503d6df5c1d1420b3ac3614"
-    sha256 cellar: :any_skip_relocation, mojave:        "22451bb38ca33a41d6a8afa493faa6b9f8a74c50685a9d0c661f662621263401"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "95e52fbf7d0b92d0441a285f8af31c09ad043b0f5f788b891444382cb541f24e"
+    sha256 cellar: :any_skip_relocation, big_sur:       "e40eec889b4bc5beda2e2480a23df501a459f2dd48ea44889929317d026b52f3"
+    sha256 cellar: :any_skip_relocation, catalina:      "e40eec889b4bc5beda2e2480a23df501a459f2dd48ea44889929317d026b52f3"
+    sha256 cellar: :any_skip_relocation, mojave:        "e40eec889b4bc5beda2e2480a23df501a459f2dd48ea44889929317d026b52f3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "1063840c936f20f81652173f7f36d4fc28b87a4049dda6fa59e473bee39920e5"
   end
 
   depends_on "go" => :build
@@ -25,31 +26,11 @@ class Frps < Formula
     etc.install "conf/frps_full.ini" => "frp/frps_full.ini"
   end
 
-  plist_options manual: "frps -c #{HOMEBREW_PREFIX}/etc/frp/frps.ini"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>KeepAlive</key>
-          <true/>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/frps</string>
-            <string>-c</string>
-            <string>#{etc}/frp/frps.ini</string>
-          </array>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/frps.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/frps.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"frps", "-c", etc/"frp/frps.ini"]
+    keep_alive true
+    error_log_path var/"log/frps.log"
+    log_path var/"log/frps.log"
   end
 
   test do

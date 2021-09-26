@@ -4,13 +4,15 @@ class Ttyd < Formula
   url "https://github.com/tsl0922/ttyd/archive/1.6.3.tar.gz"
   sha256 "1116419527edfe73717b71407fb6e06f46098fc8a8e6b0bb778c4c75dc9f64b9"
   license "MIT"
-  head "https://github.com/tsl0922/ttyd.git"
+  revision 3
+  head "https://github.com/tsl0922/ttyd.git", branch: "main"
 
   bottle do
-    sha256 arm64_big_sur: "f7627069a2b82aa5a279fb5b3ac54ac4da377c1b26a70998d3ebd6822e0cf266"
-    sha256 big_sur:       "a02e04e5aa70943d5998c5e75c49a82037725d205560391c89987cfdfb397472"
-    sha256 catalina:      "c915f944862f3db3e74444db19a8df4e0f045f826877b1a1abad8f366c57b1a9"
-    sha256 mojave:        "b3e8614d3b270121d85fae679016c68fe0f2c633d538dde1daa7887d1137cbeb"
+    sha256 arm64_big_sur: "effc05a1dc99771d4f1862e8507a454af4591df53be2eaa7cdee3c4e62a18f1c"
+    sha256 big_sur:       "27dcb4906faadbad0117389bc2cc634743d7f2287cd6f9a8a7379dd1a4e652e3"
+    sha256 catalina:      "8774607c36974cc37ee765e925ea535dd51f33ab57fc134fb68ab45da4c70eef"
+    sha256 mojave:        "fcf3fcc3945fe46b3a9478b7f8b42149af40e331bc793af6b8202bc8d98dbc5d"
+    sha256 x86_64_linux:  "992223bf53b39c45f70bfa5940b16f8a0768ee311c969042900fca80607c7389"
   end
 
   depends_on "cmake" => :build
@@ -20,7 +22,7 @@ class Ttyd < Formula
   depends_on "libwebsockets"
   depends_on "openssl@1.1"
 
-  uses_from_macos "vim"
+  uses_from_macos "vim" # needed for xxd
 
   def install
     system "cmake", ".",
@@ -30,6 +32,12 @@ class Ttyd < Formula
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/ttyd --version")
+    port = free_port
+    fork do
+      system "#{bin}/ttyd", "--port", port.to_s, "bash"
+    end
+    sleep 5
+
+    system "curl", "-sI", "http://localhost:#{port}"
   end
 end

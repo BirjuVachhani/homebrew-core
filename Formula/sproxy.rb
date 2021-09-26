@@ -4,6 +4,11 @@ class Sproxy < Formula
   url "http://download.joedog.org/sproxy/sproxy-1.02.tar.gz"
   sha256 "29b84ba66112382c948dc8c498a441e5e6d07d2cd5ed3077e388da3525526b72"
 
+  livecheck do
+    url "http://download.joedog.org/sproxy/"
+    regex(/href=.*?sproxy[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
     rebuild 2
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "2558b7f1308c8bc08667c8e51d40b1c8df05280fa8c5f003f6dec07561089c2e"
@@ -14,7 +19,6 @@ class Sproxy < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "8d57317644b76b465adc5caf984f1e3cf57f9486f642705eee66128adbcf3589"
     sha256 cellar: :any_skip_relocation, el_capitan:    "4ed786b0b05ca3c88d5904e3119d84725a9f9bedf5d952c055f22a81661a825c"
     sha256 cellar: :any_skip_relocation, yosemite:      "19da9a5b680a860e721ec60763dd48e9a5213505ee643703abcdc66707e8ce51"
-    sha256 cellar: :any_skip_relocation, mavericks:     "96b9cdebf5a11907998ba33e2b568fd5a77d46261a6faaa9c33a5d8eeca9a27f"
   end
 
   # Only needed due to the change to "Makefile.am"

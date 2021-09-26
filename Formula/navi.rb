@@ -1,19 +1,22 @@
 class Navi < Formula
   desc "Interactive cheatsheet tool for the command-line"
   homepage "https://github.com/denisidoro/navi"
-  url "https://github.com/denisidoro/navi/archive/v2.14.0.tar.gz"
-  sha256 "544c01e9d10dfcdcdded7758411e90d69e9b4734dfda1c0908359a72ba7b2bee"
+  url "https://github.com/denisidoro/navi/archive/v2.17.0.tar.gz"
+  sha256 "3402d4847720be4a930e29946bef592e6f4e270e8e0d4e3d8809f57a1d03e2d7"
   license "Apache-2.0"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "d4d7330da91c8993867b2c2443cad374b07d063a1ea4587e404fe6b99705f83b"
-    sha256 cellar: :any_skip_relocation, big_sur:       "85d58e075944fcde015a3e45ed06668e64d72cd0b49afd5e719877da83863392"
-    sha256 cellar: :any_skip_relocation, catalina:      "2aa8fa7b3e54b886bcdec48fc5985ec0ad5f839f60e3ceeee385ba440277106b"
-    sha256 cellar: :any_skip_relocation, mojave:        "b03eabbab9d70619bbbef6a6b97cf86f46cf6f64f3dca444ea7da818813693cb"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "15804e294d289233b43a7144cdf75339df598fbebd92ee9de5c4b84bc90699c6"
+    sha256 cellar: :any_skip_relocation, big_sur:       "e297366638bbea0f735a5efb491ffcb9be8ab13b005a34f40d5573895e4fd665"
+    sha256 cellar: :any_skip_relocation, catalina:      "50f06154a09b3927a240d6346b6ca72552347b12a75a4634eb633c16b7da0f50"
+    sha256 cellar: :any_skip_relocation, mojave:        "ad9b1c1da07794686886dac478791619e2427ce1ca0917908ca12b7169be9954"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "cf5e80fbcebf2f418458aa3db89a0c55ef80fd6ee3df16ddea3c9adda7453b38"
   end
 
   depends_on "rust" => :build
   depends_on "fzf"
+
+  uses_from_macos "zlib"
 
   def install
     system "cargo", "install", *std_cargo_args

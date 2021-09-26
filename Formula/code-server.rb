@@ -1,20 +1,20 @@
 class CodeServer < Formula
   desc "Access VS Code through the browser"
   homepage "https://github.com/cdr/code-server"
-  url "https://registry.npmjs.org/code-server/-/code-server-3.9.1.tgz"
-  sha256 "cfd8c6d7ed646fb7efe18a889757352a1271e25749df3519ed51f7c3988f0d3f"
+  url "https://registry.npmjs.org/code-server/-/code-server-3.12.0.tgz"
+  sha256 "3eb48472d18e54cc708bee2f9f481af84edca69af2bf6ee23824361c3e6eaa85"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "f4c7d8f17c2d5c4c8519e1a64b800fb9ce7433a9d33364afccd951bc0addd6af"
-    sha256 cellar: :any_skip_relocation, big_sur:       "a6472c654d4397de563a78fe879acb3574e3d7855ab999cb03b57fda38b9ac6c"
-    sha256 cellar: :any_skip_relocation, catalina:      "66fe382b5b6e48343e5fd0cac224fd9ddeaf78b4fe98b50bb1a4c119c1522336"
-    sha256 cellar: :any_skip_relocation, mojave:        "293fc8a3e25dbf476e30e48701f667ba35f74ed0ec0083916e73a34c6e88eb72"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "6b7d277448b9e084e6c34d88a7f3185510cbecddf76afe5e51306551d7947801"
+    sha256 cellar: :any_skip_relocation, big_sur:       "f7abc30a302af569a6887d67aa27c91bdc9a023245d881c57cceb02c6bb73ae3"
+    sha256 cellar: :any_skip_relocation, catalina:      "3645e3236d39003f35c00d0772ad619158ab4a024f621f0c06764dcf44030539"
+    sha256 cellar: :any_skip_relocation, mojave:        "7ca731bd99f09f23567cbead57850f886bed034036d27ca768b83ec5e889037e"
   end
 
   depends_on "python@3.9" => :build
   depends_on "yarn" => :build
-  depends_on "node"
+  depends_on "node@14"
 
   on_linux do
     depends_on "pkg-config" => :build
@@ -24,9 +24,10 @@ class CodeServer < Formula
   end
 
   def install
+    node = Formula["node@14"]
     system "yarn", "--production", "--frozen-lockfile"
     libexec.install Dir["*"]
-    env = { PATH: "#{HOMEBREW_PREFIX}/opt/node/bin:$PATH" }
+    env = { PATH: "#{node.opt_bin}:$PATH" }
     (bin/"code-server").write_env_script "#{libexec}/out/node/entry.js", env
   end
 
@@ -36,39 +37,18 @@ class CodeServer < Formula
     EOS
   end
 
-  plist_options manual: "code-server"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{HOMEBREW_PREFIX}/bin/code-server</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{ENV["HOME"]}</string>
-        <key>StandardOutPath</key>
-        <string>#{var}/log/code-server.log</string>
-        <key>StandardErrorPath</key>
-        <string>#{var}/log/code-server.log</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"code-server"
+    keep_alive true
+    error_log_path var/"log/code-server.log"
+    log_path var/"log/code-server.log"
+    working_dir ENV["HOME"]
   end
 
   test do
-    # See https://github.com/cdr/code-server/blob/master/ci/build/test-standalone-release.sh
-    system bin/"code-server", "--extensions-dir=.", "--install-extension", "ms-python.python"
-    assert_match "ms-python.python",
-      shell_output("#{bin/"code-server"} --extensions-dir=. --list-extensions")
+    # See https://github.com/cdr/code-server/blob/main/ci/build/test-standalone-release.sh
+    system bin/"code-server", "--extensions-dir=.", "--install-extension", "wesbos.theme-cobalt2"
+    assert_match "wesbos.theme-cobalt2",
+      shell_output("#{bin}/code-server --extensions-dir=. --list-extensions")
   end
 end

@@ -3,8 +3,8 @@ class Netpbm < Formula
   homepage "https://netpbm.sourceforge.io/"
   # Maintainers: Look at https://sourceforge.net/p/netpbm/code/HEAD/tree/
   # for stable versions and matching revisions.
-  url "https://svn.code.sf.net/p/netpbm/code/stable", revision: "4037"
-  version "10.86.19"
+  url "https://svn.code.sf.net/p/netpbm/code/stable", revision: "4127"
+  version "10.86.24"
   license "GPL-3.0-or-later"
   version_scheme 1
   head "https://svn.code.sf.net/p/netpbm/code/trunk"
@@ -16,11 +16,11 @@ class Netpbm < Formula
   end
 
   bottle do
-    rebuild 1
-    sha256 cellar: :any, arm64_big_sur: "4fc18df2e77de3684ba5f563f401c6aebb1528931b5203f061802ac430fb36af"
-    sha256 cellar: :any, big_sur:       "9bfeca916645831dff97b9cf1a63d2ec844829377118e92638cbb6b652b48ba0"
-    sha256 cellar: :any, catalina:      "24d6ed86c8f4548ea414f646213a398bb562a1ea421474e7e75fc69cfcaf78cd"
-    sha256 cellar: :any, mojave:        "bf81e0d0fca89fb491575b6352079b9a2e13cb7cf502a8b43334c30261a1cf65"
+    sha256 cellar: :any,                 arm64_big_sur: "13c3e1f37b7e9760615c2d3de988a5c17713e3a2da93b589af381927255d8435"
+    sha256 cellar: :any,                 big_sur:       "2bf9486c562e3a6e4443e02a69d9f996d1fed964926172ba8f4dbadf736e5e98"
+    sha256 cellar: :any,                 catalina:      "4c613179e8a6199a4322a6ce615ad69980f23cb8f66e193c3c0882627913075c"
+    sha256 cellar: :any,                 mojave:        "533236f8c8f5a7337054c45a864f408e3954de1e3cb53d372f4c83f481e06b07"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "564649351a63309424bf4fab76f0a85fcc6ae7a966f797f0a47e06139824426a"
   end
 
   depends_on "jasper"
@@ -31,6 +31,8 @@ class Netpbm < Formula
   uses_from_macos "flex" => :build
   uses_from_macos "libxml2"
   uses_from_macos "zlib"
+
+  conflicts_with "jbigkit", because: "both install `pbm.5` and `pgm.5` files"
 
   def install
     # Fix file not found errors for /usr/lib/system/libsystem_symptoms.dylib and
@@ -48,14 +50,12 @@ class Netpbm < Formula
       s.change_make_var! "JASPERLIB", "-ljasper"
       s.change_make_var! "JASPERHDR_DIR", "#{Formula["jasper"].opt_include}/jasper"
 
-      on_macos do
+      if OS.mac?
         s.change_make_var! "CFLAGS_SHLIB", "-fno-common"
         s.change_make_var! "NETPBMLIBTYPE", "dylib"
         s.change_make_var! "NETPBMLIBSUFFIX", "dylib"
         s.change_make_var! "LDSHLIB", "--shared -o $(SONAME)"
-      end
-
-      on_linux do
+      else
         s.change_make_var! "CFLAGS_SHLIB", "-fPIC"
       end
     end

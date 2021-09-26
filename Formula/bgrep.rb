@@ -4,7 +4,7 @@ class Bgrep < Formula
   url "https://github.com/tmbinc/bgrep/archive/bgrep-0.2.tar.gz"
   sha256 "24c02393fb436d7a2eb02c6042ec140f9502667500b13a59795388c1af91f9ba"
   license "BSD-2-Clause"
-  head "https://github.com/tmbinc/bgrep.git"
+  head "https://github.com/tmbinc/bgrep.git", branch: "master"
 
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "2d5628a1b93a4ad2e770502b011140bc301051e1679ac5d59eadbd9b94944b1b"
@@ -15,7 +15,6 @@ class Bgrep < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "eaed7c05fd07c77cd5aeb6f1232abcf5c9678b86fdaf7e7daf5049476acc690c"
     sha256 cellar: :any_skip_relocation, el_capitan:    "29f0b2d7ab307eae228a03d4f42f677d9ff0884edc5c96771da36182cb592cd2"
     sha256 cellar: :any_skip_relocation, yosemite:      "af4dab94130c48930d064074da8492c5531842a348747b0dd39420db738f6ae9"
-    sha256 cellar: :any_skip_relocation, mavericks:     "b166d637dda09833c3b2c3396670347b087fef6366576303f87fb704b1d3eede"
   end
 
   def install

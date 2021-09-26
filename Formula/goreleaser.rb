@@ -2,25 +2,30 @@ class Goreleaser < Formula
   desc "Deliver Go binaries as fast and easily as possible"
   homepage "https://goreleaser.com/"
   url "https://github.com/goreleaser/goreleaser.git",
-      tag:      "v0.159.0",
-      revision: "c1f9be42e43221793c76ae2b919c3283c0ab6e29"
+      tag:      "v0.180.0",
+      revision: "3d62f95fd53bfa037e3e39894eefe637a8758333"
   license "MIT"
-  revision 1
-  head "https://github.com/goreleaser/goreleaser.git"
+  head "https://github.com/goreleaser/goreleaser.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "d1277794d727dcb1b58959f55f49fe819555cd02a08f5f9e486f422fe5bfac66"
-    sha256 cellar: :any_skip_relocation, big_sur:       "1ce69364d2cebafb45e937817282fa37ba01e00970659ef76789b1a5b72d5ff0"
-    sha256 cellar: :any_skip_relocation, catalina:      "edb6425e43a2acb5b624847f22e7bc592c8f88ab4609c650d7044e708df827b0"
-    sha256 cellar: :any_skip_relocation, mojave:        "5e1694cb19936a9e4b5d5b49a6e42e0052ea7542f82434c57a3b2115376fd7f7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "fcf214e0a38641d6db6052ac95783f245433deb5075c4ffa763a30836ddb26bf"
+    sha256 cellar: :any_skip_relocation, big_sur:       "9a0571e4cbc29014df0b3eb46d7f61c4e56c1b218b28c09ff5fd79cb7023aaad"
+    sha256 cellar: :any_skip_relocation, catalina:      "fc90857250deff0ac9945943f1bc20337827943918af3347e899f4cf59f01935"
+    sha256 cellar: :any_skip_relocation, mojave:        "dfc506524151f8f4a6b866daaffaa1652e39c7f5ac35336cb7f89872212109ac"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "542ca3fdab51317d3e5e7164435480bb4e77ffa4c72fb754c50699711c7580ae"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags",
-             "-s -w -X main.version=#{version} -X main.commit=#{Utils.git_head} -X main.builtBy=homebrew",
-             *std_go_args
+    ldflags = %W[
+      -s -w
+      -X main.version=#{version}
+      -X main.commit=#{Utils.git_head}
+      -X main.builtBy=homebrew
+    ].join(" ")
+
+    system "go", "build", *std_go_args(ldflags: ldflags)
 
     # Install shell completions
     output = Utils.safe_popen_read("#{bin}/goreleaser", "completion", "bash")

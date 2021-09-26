@@ -1,16 +1,19 @@
 class QtPerconaServer < Formula
   desc "Qt SQL Database Driver"
   homepage "https://www.qt.io/"
-  url "https://download.qt.io/official_releases/qt/6.0/6.0.2/submodules/qtbase-everywhere-src-6.0.2.tar.xz"
-  sha256 "991a0e4e123104e76563067fcfa58602050c03aba8c8bb0c6198347c707817f1"
+  url "https://download.qt.io/official_releases/qt/6.1/6.1.3/submodules/qtbase-everywhere-src-6.1.3.tar.xz"
+  sha256 "1e9abb2ea4daa0fd11f46fc871d9e896b916e1b7130fed74c83d66221bb4fe78"
   license all_of: ["LGPL-2.1-only", "LGPL-3.0-only"]
-  revision 1
+
+  livecheck do
+    formula "qt"
+  end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "48be34d2a450bfb7e10cf1ae2538b8305cc5dea1be0e85514a1b3b05155bb143"
-    sha256 cellar: :any, big_sur:       "67f8445d8208957d04bd26cfef81ee92654176f15a9c08991d14679cb733f934"
-    sha256 cellar: :any, catalina:      "3fb67b8e2b22c8ec55b7a26b6ef58fb3aec381658e09d5c0ddd92312ce078e80"
-    sha256 cellar: :any, mojave:        "0aaa102db1d6d4df3bd5a50b0ae42dbd8ff56e8e10c96365cefcb0557fbac8fd"
+    sha256 cellar: :any, arm64_big_sur: "8bf3ea2a32d66415dd802813ea09fa15ac9eeab75b5d4e49effcad08ab3771a5"
+    sha256 cellar: :any, big_sur:       "7228edab478768ef2398b4f1c9d36f075d95e932f7083f1b5b5deecc98c966e2"
+    sha256 cellar: :any, catalina:      "fd84ae9e43efc6844a7ce0895f4060465444f48dbcb903fb1129c26ca634c497"
+    sha256 cellar: :any, mojave:        "1b4d4e64aa2e52436873b7c71a3f2f5202b0b6285f96a1776d2c701385ccc8b7"
   end
 
   depends_on "cmake" => [:build, :test]
@@ -33,7 +36,7 @@ class QtPerconaServer < Formula
       -DFEATURE_sql_psql=OFF
       -DFEATURE_sql_sqlite=OFF
 
-      -DMySQL_LIBRARIES=#{Formula["percona-server"].opt_lib}/#{shared_library("libperconaserverclient")}
+      -DMySQL_LIBRARY=#{Formula["percona-server"].opt_lib}/#{shared_library("libperconaserverclient")}
     ]
 
     cd "src/plugins/sqldrivers" do

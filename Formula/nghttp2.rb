@@ -1,15 +1,16 @@
 class Nghttp2 < Formula
   desc "HTTP/2 C Library"
   homepage "https://nghttp2.org/"
-  url "https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.xz"
-  sha256 "f7d54fa6f8aed29f695ca44612136fa2359013547394d5dffeffca9e01a26b0f"
+  url "https://github.com/nghttp2/nghttp2/releases/download/v1.45.1/nghttp2-1.45.1.tar.xz"
+  sha256 "abdc4addccadbc7d89abe27c4d6427d78e57d139f69c1f45749227393c68bf79"
   license "MIT"
 
   bottle do
-    sha256 arm64_big_sur: "e927b6ac25987d073b7d65d87bf27b30a95cd1196ffff4b5b82bf955da42b1c7"
-    sha256 big_sur:       "e6112c4ce4b08b60edbb3d7fca3e22498bbe1881bd6ca95df52b9f2726b0c62a"
-    sha256 catalina:      "5db5819e321f04b2301165cc267913ceacb161faa0504f4e067e074a101871b8"
-    sha256 mojave:        "cbcac00ca57c0c71e148124ed31cf37abcd28f5adc11565fa51f9f277b401a09"
+    sha256 arm64_big_sur: "6e5425c819ee58479d4b2b2504dcff2ee53f5ed1ba79d16a10d41830734caac9"
+    sha256 big_sur:       "9259742cf609ff32e077e3eaa081e36ce8c15a609412ebdb8739dcd45e7c0aa3"
+    sha256 catalina:      "e5175c25cb1a5815d4e174c7cd535b65b77ef7a3ed5162bcdb878805d71ea0ac"
+    sha256 mojave:        "82aefe904d2c98078bb50401d460073526e239818d6e0d477db0bb65e5bb3a85"
+    sha256 x86_64_linux:  "910df4cce4ff9fcbc82edddf6517d72468db191b4a6144dfcc6e676266c4954a"
   end
 
   head do

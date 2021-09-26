@@ -1,11 +1,12 @@
 class Mosquitto < Formula
   desc "Message broker implementing the MQTT protocol"
   homepage "https://mosquitto.org/"
-  url "https://mosquitto.org/files/source/mosquitto-2.0.9.tar.gz"
-  sha256 "1b8553ef64a1cf5e4f4cfbe098330ae612adccd3d37f35b2db6f6fab501b01d4"
+  url "https://mosquitto.org/files/source/mosquitto-2.0.10.tar.gz"
+  sha256 "0188f7b21b91d6d80e992b8d6116ba851468b3bd154030e8a003ed28fb6f4a44"
   # dual-licensed under EPL-1.0 and EDL-1.0 (Eclipse Distribution License v1.0),
   # EDL-1.0 is not in the SPDX list
   license "EPL-1.0"
+  revision 1
 
   livecheck do
     url "https://mosquitto.org/download/"
@@ -13,14 +14,17 @@ class Mosquitto < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "e5abebed466350b9a8b04ec48e362d6c0d38ac65ffa797890331de6194a95698"
-    sha256 big_sur:       "055cde20ee6ee13a27e58049d433fd7ec0630e2857677de69ba256b93c969ada"
-    sha256 catalina:      "9ffde39e978b12523123b68ee121d75f4be27cd12b37f0bef601f3a838239c96"
-    sha256 mojave:        "d1e4b6475a80c876bfcd76195f66af91b040455663b3e3293ee995d9582153f0"
+    rebuild 1
+    sha256 arm64_big_sur: "1b42d8e6682597d9f1fcafd98865073266ed116d753f6c6dfc7ec0734b98dcab"
+    sha256 big_sur:       "41ddee2a82f929b1754686d38f0e67570b1728eee8000ab4d4f68f52b052d152"
+    sha256 catalina:      "1459490520f73a2a331487b1fef6163957ed7e4b91868d4bb830ed8448cf7a4b"
+    sha256 mojave:        "1c2764711220dba026af2d78c32d3f077da354252be4177059f5816faf610153"
+    sha256 x86_64_linux:  "cd02e8539023e928475cf757b1865be0c65961bc55ce16c0006490e521dfb0b8"
   end
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
+  depends_on "cjson"
   depends_on "libwebsockets"
   depends_on "openssl@1.1"
 
@@ -33,7 +37,7 @@ class Mosquitto < Formula
   def install
     system "cmake", ".", *std_cmake_args,
                     "-DWITH_WEBSOCKETS=ON",
-                    "-DCMAKE_INSTALL_RPATH=#{lib}"
+                    "-DCMAKE_INSTALL_RPATH=#{rpath}"
     system "make", "install"
   end
 
@@ -49,35 +53,18 @@ class Mosquitto < Formula
     EOS
   end
 
-  plist_options manual: "mosquitto -c #{HOMEBREW_PREFIX}/etc/mosquitto/mosquitto.conf"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_sbin}/mosquitto</string>
-          <string>-c</string>
-          <string>#{etc}/mosquitto/mosquitto.conf</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>KeepAlive</key>
-        <false/>
-        <key>WorkingDirectory</key>
-        <string>#{var}/mosquitto</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"mosquitto", "-c", etc/"mosquitto/mosquitto.conf"]
+    keep_alive false
+    working_dir var/"mosquitto"
   end
 
   test do
     quiet_system "#{sbin}/mosquitto", "-h"
     assert_equal 3, $CHILD_STATUS.exitstatus
+    quiet_system "#{bin}/mosquitto_ctrl", "dynsec", "help"
+    assert_equal 0, $CHILD_STATUS.exitstatus
+    quiet_system "#{bin}/mosquitto_passwd", "-c", "-b", "/tmp/mosquitto.pass", "foo", "bar"
+    assert_equal 0, $CHILD_STATUS.exitstatus
   end
 end

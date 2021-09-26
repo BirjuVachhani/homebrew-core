@@ -1,10 +1,10 @@
 class OpensslAT11 < Formula
   desc "Cryptography and SSL/TLS Toolkit"
   homepage "https://openssl.org/"
-  url "https://www.openssl.org/source/openssl-1.1.1j.tar.gz"
-  mirror "https://dl.bintray.com/homebrew/mirror/openssl-1.1.1j.tar.gz"
-  mirror "https://www.mirrorservice.org/sites/ftp.openssl.org/source/openssl-1.1.1j.tar.gz"
-  sha256 "aaf2fcb575cdf6491b98ab4829abf78a3dec8402b8b81efc8f23c00d443981bf"
+  url "https://www.openssl.org/source/openssl-1.1.1l.tar.gz"
+  mirror "https://www.mirrorservice.org/sites/ftp.openssl.org/source/openssl-1.1.1l.tar.gz"
+  mirror "https://www.openssl.org/source/old/1.1.1/openssl-1.1.1l.tar.gz"
+  sha256 "0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1"
   license "OpenSSL"
   version_scheme 1
 
@@ -14,10 +14,11 @@ class OpensslAT11 < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "f8b99ea0ad2a19855aab784122271fbc811c69b03c53c0e8b959b02977e4444a"
-    sha256 big_sur:       "5725361adcd088a5b4fb278aa37b12964008f9ceb3892ceef558fb5de3c95896"
-    sha256 catalina:      "ecfbca86c18eb819222ae13aa2e4148d89c9dc15e1172545352b6fcf29d40d0c"
-    sha256 mojave:        "ffbc4252535f6073ff109cfa87e50847e6d44051a7ff374b8ad3b455477e7d1a"
+    sha256 arm64_big_sur: "9acf35f49127e7db9a1190c0c19330cd51f925bc3c482b699aaad802be2fea2b"
+    sha256 big_sur:       "ff8b2a965c680b4d9baccd60e799d0989e7dc562d2ba81696a9996bab256a6ad"
+    sha256 catalina:      "9c8490c19c5e18a5c9f92c3410b501ad456b348f711f760b2932fd763d0d0c14"
+    sha256 mojave:        "e310413752934299a0b8277b5aca3ceeddad0a2cecbcf2a9b81277c2219312b8"
+    sha256 x86_64_linux:  "4e8d3bcafe560d3d3ae2e0a29b98fa009101d72c249cd5b99892d706ac23e6dc"
   end
 
   keg_only :shadowed_by_macos, "macOS provides LibreSSL"
@@ -46,6 +47,20 @@ class OpensslAT11 < Formula
     end
   end
 
+  # Fix build on older macOS versions.
+  # Remove with the next version.
+  patch do
+    url "https://github.com/openssl/openssl/commit/96ac8f13f4d0ee96baf5724d9f96c44c34b8606c.patch?full_index=1"
+    sha256 "dd5498c0910c0ae91738fe8e796f4deb4767b08217c1a859fe390147f24809c6"
+  end
+
+  # Fix build on older macOS versions.
+  # Remove with the next version.
+  patch do
+    url "https://github.com/openssl/openssl/commit/2f3b120401533db82e99ed28de5fc8aab1b76b33.patch?full_index=1"
+    sha256 "a66dcd4a3a291858deefaf260ffd8f2f55da953724e7a14db9c4523d8b7ef383"
+  end
+
   # SSLv2 died with 1.1.0, so no-ssl2 no longer required.
   # SSLv3 & zlib are off by default with 1.1.0 but this may not
   # be obvious to everyone, so explicitly state it for now to
@@ -68,7 +83,7 @@ class OpensslAT11 < Formula
   end
 
   def install
-    on_linux do
+    if OS.linux?
       ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
 
       %w[ExtUtils::MakeMaker Test::Harness Test::More].each do |r|
@@ -89,18 +104,14 @@ class OpensslAT11 < Formula
     ENV["PERL"] = Formula["perl"].opt_bin/"perl" if which("perl") == Formula["perl"].opt_bin/"perl"
 
     arch_args = []
-    on_macos do
+    if OS.mac?
       arch_args += %W[darwin64-#{Hardware::CPU.arch}-cc enable-ec_nistp_64_gcc_128]
-    end
-    on_linux do
-      if Hardware::CPU.intel?
-        arch_args << (Hardware::CPU.is_64_bit? ? "linux-x86_64" : "linux-elf")
-      elsif Hardware::CPU.arm?
-        arch_args << (Hardware::CPU.is_64_bit? ? "linux-aarch64" : "linux-armv4")
-      end
+    elsif Hardware::CPU.intel?
+      arch_args << (Hardware::CPU.is_64_bit? ? "linux-x86_64" : "linux-elf")
+    elsif Hardware::CPU.arm?
+      arch_args << (Hardware::CPU.is_64_bit? ? "linux-aarch64" : "linux-armv4")
     end
 
-    ENV.deparallelize
     system "perl", "./Configure", *(configure_args + arch_args)
     system "make"
     system "make", "install", "MANDIR=#{man}", "MANSUFFIX=ssl"
@@ -112,22 +123,29 @@ class OpensslAT11 < Formula
   end
 
   def post_install
-    on_macos(&method(:macos_post_install))
-    on_linux(&method(:linux_post_install))
+    if OS.mac?
+      macos_post_install
+    else
+      linux_post_install
+    end
   end
 
   def macos_post_install
+    ohai "Regenerating CA certificate bundle from keychain, this may take a while..."
+
     keychains = %w[
+      /Library/Keychains/System.keychain
       /System/Library/Keychains/SystemRootCertificates.keychain
     ]
 
-    certs_list = `security find-certificate -a -p #{keychains.join(" ")}`
+    certs_list = `/usr/bin/security find-certificate -a -p #{keychains.join(" ")}`
     certs = certs_list.scan(
       /-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----/m,
     )
 
+    # Check that the certificate has not expired
     valid_certs = certs.select do |cert|
-      IO.popen("#{bin}/openssl x509 -inform pem -checkend 0 -noout >/dev/null", "w") do |openssl_io|
+      IO.popen("#{bin}/openssl x509 -inform pem -checkend 0 -noout &>/dev/null", "w") do |openssl_io|
         openssl_io.write(cert)
         openssl_io.close_write
       end
@@ -135,8 +153,25 @@ class OpensslAT11 < Formula
       $CHILD_STATUS.success?
     end
 
+    # Check that the certificate is trusted in keychain
+    trusted_certs = begin
+      tmpfile = Tempfile.new
+
+      valid_certs.select do |cert|
+        tmpfile.rewind
+        tmpfile.write cert
+        tmpfile.truncate cert.size
+        tmpfile.flush
+        IO.popen("/usr/bin/security verify-cert -l -L -R offline -c #{tmpfile.path} &>/dev/null")
+
+        $CHILD_STATUS.success?
+      end
+    ensure
+      tmpfile&.close!
+    end
+
     openssldir.mkpath
-    (openssldir/"cert.pem").atomic_write(valid_certs.join("\n") << "\n")
+    (openssldir/"cert.pem").atomic_write(trusted_certs.join("\n") << "\n")
   end
 
   def linux_post_install

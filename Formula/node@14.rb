@@ -1,10 +1,9 @@
 class NodeAT14 < Formula
   desc "Platform built on V8 to build network applications"
   homepage "https://nodejs.org/"
-  url "https://nodejs.org/dist/v14.16.0/node-v14.16.0.tar.gz"
-  sha256 "f6b904b06951de4c52089dd4456155d853e835b0dc4640f75458c6eb49f9e8ce"
+  url "https://nodejs.org/dist/v14.17.6/node-v14.17.6.tar.gz"
+  sha256 "f64559c87faa2f1ce93c3d2cd09723af254ec320a53cbfd1a2ba8fba28e488d0"
   license "MIT"
-  revision 1
 
   livecheck do
     url "https://nodejs.org/dist/"
@@ -12,10 +11,11 @@ class NodeAT14 < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "b5d14137168e3d16c1f707463166a0a9b5ef52fb91bf4e39ecfbfa9bb171d1d1"
-    sha256 cellar: :any, big_sur:       "a923bb6b3f5bc394b9f3fa5e5e70745ed7c1e3095e43baa9645b5ca6b0cf1189"
-    sha256 cellar: :any, catalina:      "0767567e719f2b2abc8413a2f3f4e546ad1f5a1433ae32932976a8ecc8f21bce"
-    sha256 cellar: :any, mojave:        "cb32fbb9b8b90bd1cdabbeeaa610dadb718627b7c4bb8224c188ba7672f821c9"
+    sha256 cellar: :any,                 arm64_big_sur: "41d3ab74c536b1c88e15df92e1991d64e7d7f8f845555074ee61b7d4fa8f5c9c"
+    sha256 cellar: :any,                 big_sur:       "cd0c93868bf70ac6a51e2ea7e7ca52d405dba808a35564625695d5385402c289"
+    sha256 cellar: :any,                 catalina:      "32b944c89b4274a5eb5053b84d540e012043f1b41cf096133739d2fab9784beb"
+    sha256 cellar: :any,                 mojave:        "503373b72c753e8eb3506a962f52e861221ba375cc40720aa46bec002fc5900d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "e937005988d228479d4ee5825aacf2769e467286836eae790c032a83981fae6d"
   end
 
   keg_only :versioned_formula
@@ -24,12 +24,26 @@ class NodeAT14 < Formula
   depends_on "python@3.9" => :build
   depends_on "icu4c"
 
+  on_macos do
+    depends_on "macos-term-size"
+  end
+
   def install
     # make sure subprocesses spawned by make are using our Python 3
     ENV["PYTHON"] = Formula["python@3.9"].opt_bin/"python3"
 
     system "python3", "configure.py", "--prefix=#{prefix}", "--with-intl=system-icu"
     system "make", "install"
+
+    term_size_vendor_dir = lib/"node_modules/npm/node_modules/term-size/vendor"
+    term_size_vendor_dir.rmtree # remove pre-built binaries
+
+    if OS.mac?
+      macos_dir = term_size_vendor_dir/"macos"
+      macos_dir.mkpath
+      # Replace the vendored pre-built term-size with one we build ourselves
+      ln_sf (Formula["macos-term-size"].opt_bin/"term-size").relative_path_from(macos_dir), macos_dir
+    end
   end
 
   def post_install

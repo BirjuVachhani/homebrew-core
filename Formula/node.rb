@@ -1,10 +1,10 @@
 class Node < Formula
   desc "Platform built on V8 to build network applications"
   homepage "https://nodejs.org/"
-  url "https://nodejs.org/dist/v15.11.0/node-v15.11.0.tar.xz"
-  sha256 "1a7091a210423970619b4af95dba6f4c6e2b576b9700460e5220afff24a8d2d1"
+  url "https://nodejs.org/dist/v16.10.0/node-v16.10.0.tar.xz"
+  sha256 "97dc1aca232b4911e0b9e5a23a03200ab8ef05157e03c732315b579481bf7912"
   license "MIT"
-  head "https://github.com/nodejs/node.git"
+  head "https://github.com/nodejs/node.git", branch: "master"
 
   livecheck do
     url "https://nodejs.org/dist/"
@@ -12,21 +12,51 @@ class Node < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "0f9370176b23c6a709ead6590fdcacaf1c9ea7ef141aa8e32114b47274e043c5"
-    sha256 cellar: :any, big_sur:       "edb7281061ce503632fcfa44c72efaa0b4f03b2104628b8fc3c28715022a8975"
-    sha256 cellar: :any, catalina:      "1dc4ea77c4196c8376eb6d81401f7bdb357c49ce456780659a2a4e01685cea4e"
-    sha256 cellar: :any, mojave:        "ab1b358c58ed5561d75db0c2dc9661a31fcdd809ce425d293ae869d49f63bfb1"
+    sha256 cellar: :any,                 arm64_big_sur: "3c3ca1e28484fb958de37be5bb628790fe0f68bac74043633e64f1a17cd074c7"
+    sha256 cellar: :any,                 big_sur:       "53394f5e571ecb9e4ad74481f79c10d086332eec273cf0dc4eea0b272e6f98cf"
+    sha256 cellar: :any,                 catalina:      "778505b2d32b382b110a517eba6d19fda7d6c4d8d84f8ebe258457ce8a21bbd5"
+    sha256 cellar: :any,                 mojave:        "796a9777c654a516591356c24e7d89090a191d92142cfaca4de7839f2db38523"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "e0209977290a60159c8ee58f753e851e43e89f33ac8385ffb24399bd3953f24b"
   end
 
   depends_on "pkg-config" => :build
   depends_on "python@3.9" => :build
+  depends_on "brotli"
+  depends_on "c-ares"
   depends_on "icu4c"
+  depends_on "libuv"
+  depends_on "nghttp2"
+  depends_on "openssl@1.1"
+
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "gcc"
+  end
+
+  fails_with :clang do
+    build 1099
+    cause "Node requires Xcode CLT 11+"
+  end
+
+  fails_with gcc: "5"
 
   # We track major/minor from upstream Node releases.
   # We will accept *important* npm patch releases when necessary.
   resource "npm" do
-    url "https://registry.npmjs.org/npm/-/npm-7.6.0.tgz"
-    sha256 "6fe261c6af4d4810c0cabf87da402980fe2f610b1a7b58f74449a5d603e011be"
+    url "https://registry.npmjs.org/npm/-/npm-7.24.0.tgz"
+    sha256 "d2e8e006bf34a06314d41ad7b23417984d479e9834ce180551047b3ba89a7556"
+  end
+
+  # Fix build with brewed c-ares.
+  # https://github.com/nodejs/node/pull/39739
+  #
+  # Remove when the following lands in a *c-ares* release:
+  # https://github.com/c-ares/c-ares/commit/7712fcd17847998cf1ee3071284ec50c5b3c1978
+  # https://github.com/c-ares/c-ares/pull/417
+  patch do
+    url "https://github.com/nodejs/node/commit/8699aa501c4d4e1567ebe8901e5ec80cadaa9323.patch?full_index=1"
+    sha256 "678643c79258372d5054d3da16bc0c5db17130f151f0e72b6e4f20817987aac9"
   end
 
   def install
@@ -35,7 +65,27 @@ class Node < Formula
 
     # Never install the bundled "npm", always prefer our
     # installation from tarball for better packaging control.
-    args = %W[--prefix=#{prefix} --without-npm --with-intl=system-icu]
+    args = %W[
+      --prefix=#{prefix}
+      --without-npm
+      --with-intl=system-icu
+      --shared-libuv
+      --shared-nghttp2
+      --shared-openssl
+      --shared-zlib
+      --shared-brotli
+      --shared-cares
+      --shared-libuv-includes=#{Formula["libuv"].include}
+      --shared-libuv-libpath=#{Formula["libuv"].lib}
+      --shared-nghttp2-includes=#{Formula["nghttp2"].include}
+      --shared-nghttp2-libpath=#{Formula["nghttp2"].lib}
+      --shared-openssl-includes=#{Formula["openssl@1.1"].include}
+      --shared-openssl-libpath=#{Formula["openssl@1.1"].lib}
+      --shared-brotli-includes=#{Formula["brotli"].include}
+      --shared-brotli-libpath=#{Formula["brotli"].lib}
+      --shared-cares-includes=#{Formula["c-ares"].include}
+      --shared-cares-libpath=#{Formula["c-ares"].lib}
+    ]
     args << "--tag=head" if build.head?
 
     system "./configure", *args

@@ -1,21 +1,21 @@
 class Pidgin < Formula
   desc "Multi-protocol chat client"
   homepage "https://pidgin.im/"
-  url "https://downloads.sourceforge.net/project/pidgin/Pidgin/2.14.1/pidgin-2.14.1.tar.bz2"
-  sha256 "f132e18d551117d9e46acce29ba4f40892a86746c366999166a3862b51060780"
+  url "https://downloads.sourceforge.net/project/pidgin/Pidgin/2.14.7/pidgin-2.14.7.tar.bz2"
+  sha256 "fea6ab4f0572fe24646049c2b3fecbdca27abca6d06e95bd655e44db99bd69fe"
   license "GPL-2.0-or-later"
-  revision 1
 
   livecheck do
-    url :stable
-    regex(%r{url=.*?/pidgin[._-]v?(\d+(?:\.\d+)+)\.t}i)
+    url "https://sourceforge.net/projects/pidgin/files/Pidgin/"
+    regex(%r{href=.*?/v?(\d+(?:\.\d+)+)/?["' >]}i)
+    strategy :page_match
   end
 
   bottle do
-    sha256 arm64_big_sur: "d8ecf79354ce2ec2c060b58305743452f40e148a72ba5d72612b0f018ab00144"
-    sha256 big_sur:       "ffbc6daf100dda1b80d898692dd77dbde42fe5223e74316252bed2173197f2ed"
-    sha256 catalina:      "c5dc52dceddf5a7084b84b3c9515a0d08149f934420a08b12bc7f89ed4b7afe0"
-    sha256 mojave:        "14c679b8cca37387b9ca473d09b24fa89b61986bef017f94733a58a4fd97d069"
+    sha256 arm64_big_sur: "5a4a12719ba5f0ecf8760a4b924421e53436894c9768aef39ccb746556dea921"
+    sha256 big_sur:       "1818362c8ad056d5527ab78423b8d9439bb1e8cd5008dc0cea99d296e37ed482"
+    sha256 catalina:      "454cf51fead6fb7b37b226b9ffe45ab7af64b327f6a3022fd3c6b89cce93a060"
+    sha256 mojave:        "2940e978897485867020f76745c82069617eac27632421c3e0063e9d6a61ee90"
   end
 
   depends_on "intltool" => :build

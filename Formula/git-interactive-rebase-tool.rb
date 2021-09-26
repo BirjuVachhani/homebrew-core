@@ -1,8 +1,8 @@
 class GitInteractiveRebaseTool < Formula
   desc "Native sequence editor for Git interactive rebase"
   homepage "https://gitrebasetool.mitmaro.ca/"
-  url "https://github.com/MitMaro/git-interactive-rebase-tool/archive/2.0.0.tar.gz"
-  sha256 "572815b6bf152cae9414635caf9c8c918a575747c3a8885767380da4aeeeb709"
+  url "https://github.com/MitMaro/git-interactive-rebase-tool/archive/2.1.0.tar.gz"
+  sha256 "f5c2d73a191fe37e1144dca19977e99d2f306ce92ce799acdbf2992524dd4aa2"
   license "GPL-3.0-or-later"
 
   livecheck do
@@ -11,15 +11,22 @@ class GitInteractiveRebaseTool < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "6180d15058ccd520f47d2098b5cc027582cf8ea7ecb1c4a4d64e345c3e902f67"
-    sha256 cellar: :any_skip_relocation, big_sur:       "372e9db83f4c4e47a7268c380e83346884901e3323cab736ba8e6e2a6fd523be"
-    sha256 cellar: :any_skip_relocation, catalina:      "dbb362bd82f3863f68aaa26591cd0754070f91c6573556e86210b63034fe47b0"
-    sha256 cellar: :any_skip_relocation, mojave:        "06a54c67aa4daa0187733cb43a8ce3fcadd0d9a3aa3f8577dbd77f13e1128da5"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "fd082607eef75ac3382d280c358cf19db42ad11d464ded8a2845734de378937c"
+    sha256 cellar: :any_skip_relocation, big_sur:       "4480f59a021edb031a3ef02b5cccae62719dad12f6ae7fc2413b75088be466ac"
+    sha256 cellar: :any_skip_relocation, catalina:      "9223a3f962e2af3897cefb9e221a529be7701e964005d55436f7de9d97d1b573"
+    sha256 cellar: :any_skip_relocation, mojave:        "bfab245c62dd4a37da0c275d8b4642ee86b5912153465da1e312a510fce60b80"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "5c37316d7e0b5bc7d99d9979a001db0fbb348f6c6229ce5abfa7b50be39406c1"
   end
 
   depends_on "rust" => :build
 
   uses_from_macos "zlib"
+
+  # Support rust 1.54, remove with next release after 2.1.0
+  patch do
+    url "https://github.com/MitMaro/git-interactive-rebase-tool/commit/f4d3026f23118d29a263bbca6c83f963e76c34c4.patch?full_index=1"
+    sha256 "74a9ff98f668707f41df910b41eab6006970f2cf703f2a02a65e8c9901ddbd12"
+  end
 
   def install
     system "cargo", "install", *std_cargo_args

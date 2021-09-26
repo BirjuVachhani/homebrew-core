@@ -2,10 +2,10 @@ class Git < Formula
   desc "Distributed revision control system"
   homepage "https://git-scm.com"
   # NOTE: Please keep these values in sync with git-gui.rb when updating.
-  url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.30.2.tar.xz"
-  sha256 "41f7d90c71f9476cd387673fcb10ce09ccbed67332436a4cc58d7af32c355faa"
+  url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.33.0.tar.xz"
+  sha256 "bf3c6ab5f82e072aad4768f647cfb1ef60aece39855f83f080f9c0222dd20c4f"
   license "GPL-2.0-only"
-  head "https://github.com/git/git.git", shallow: false
+  head "https://github.com/git/git.git"
 
   livecheck do
     url "https://www.kernel.org/pub/software/scm/git/"
@@ -13,23 +13,33 @@ class Git < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "b480fcf0ecae4ded1f62e3aae6b8363f156a454eea58a833e7ce469eba7d761a"
-    sha256 big_sur:       "080017fabfad8c0047cbb2149b09a81e8a66f15253c58cd0f931f5dca7c4cb69"
-    sha256 catalina:      "4a1ab36624163ad62af82e8175e51019bfcea1b4657353b4d73493c5ca773b6f"
-    sha256 mojave:        "24547de9d51b08f78f128961d3c728853c3a828d1354234e1dcae5b26333338b"
+    sha256 arm64_big_sur: "06e9cc3e274380b2494451ed2e3c6acf1e091facdf2ce02da57921fbc6a3115a"
+    sha256 big_sur:       "1b89ec39f7a4b865b3c671f9b2495ec85992595112b74a5dc3ac78beae33ff0d"
+    sha256 catalina:      "4aaced15f34f02a7a965f9cee42b78ef471034e4d9cf3bbbe8bf2ab8f4f72678"
+    sha256 mojave:        "5e85e4d8c9aaa398420993cb9c2561db79d3a71a12b79b8631ee0de5b0d86c67"
+    sha256 x86_64_linux:  "06340f727c9e234bbe7fb940307c7ec2545b8186ed1bfbb9c20cf9763cb2d22c"
   end
 
   depends_on "gettext"
   depends_on "pcre2"
 
+  uses_from_macos "curl"
+  uses_from_macos "expat"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "linux-headers@4.4"
+    depends_on "openssl@1.1" # Uses CommonCrypto on macOS
+  end
+
   resource "html" do
-    url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-htmldocs-2.30.2.tar.xz"
-    sha256 "29b8ab81966ec7c1a3ed47fb7fe23f0b78289c18d11d58c0dc8749613e0419dc"
+    url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-htmldocs-2.33.0.tar.xz"
+    sha256 "309c5d3cdd9a115f693c0e035298cc867a3b8ba8ce235fa1ac950a48cb4b0447"
   end
 
   resource "man" do
-    url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-manpages-2.30.2.tar.xz"
-    sha256 "5e64ace225e6dd0749b09c7adce765a538a922699c8997421ee255c3165e2aaa"
+    url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-manpages-2.33.0.tar.xz"
+    sha256 "d6d38abe3fe45b74359e65d53e51db3aa92d7f551240b7f7a779746f24c4bc31"
   end
 
   resource "Net::SMTP::SSL" do
@@ -50,13 +60,15 @@ class Git < Formula
 
     perl_version = Utils.safe_popen_read("perl", "--version")[/v(\d+\.\d+)(?:\.\d+)?/, 1]
 
-    ENV["PERLLIB_EXTRA"] = %W[
-      #{MacOS.active_developer_dir}
-      /Library/Developer/CommandLineTools
-      /Applications/Xcode.app/Contents/Developer
-    ].uniq.map do |p|
-      "#{p}/Library/Perl/#{perl_version}/darwin-thread-multi-2level"
-    end.join(":")
+    if OS.mac?
+      ENV["PERLLIB_EXTRA"] = %W[
+        #{MacOS.active_developer_dir}
+        /Library/Developer/CommandLineTools
+        /Applications/Xcode.app/Contents/Developer
+      ].uniq.map do |p|
+        "#{p}/Library/Perl/#{perl_version}/darwin-thread-multi-2level"
+      end.join(":")
+    end
 
     # Ensure we are using the correct system headers (for curl) to workaround
     # mismatched Xcode/CLT versions:
@@ -76,21 +88,29 @@ class Git < Formula
       CFLAGS=#{ENV.cflags}
       LDFLAGS=#{ENV.ldflags}
       NO_TCLTK=1
-      NO_OPENSSL=1
-      APPLE_COMMON_CRYPTO=1
     ]
+
+    args += if OS.mac?
+      %w[NO_OPENSSL=1 APPLE_COMMON_CRYPTO=1]
+    else
+      openssl_prefix = Formula["openssl@1.1"].opt_prefix
+
+      %W[NO_APPLE_COMMON_CRYPTO=1 OPENSSLDIR=#{openssl_prefix}]
+    end
 
     system "make", "install", *args
 
     git_core = libexec/"git-core"
 
     # Install the macOS keychain credential helper
-    cd "contrib/credential/osxkeychain" do
-      system "make", "CC=#{ENV.cc}",
-                     "CFLAGS=#{ENV.cflags}",
-                     "LDFLAGS=#{ENV.ldflags}"
-      git_core.install "git-credential-osxkeychain"
-      system "make", "clean"
+    if OS.mac?
+      cd "contrib/credential/osxkeychain" do
+        system "make", "CC=#{ENV.cc}",
+                       "CFLAGS=#{ENV.cflags}",
+                       "LDFLAGS=#{ENV.ldflags}"
+        git_core.install "git-credential-osxkeychain"
+        system "make", "clean"
+      end
     end
 
     # Generate diff-highlight perl script executable
@@ -130,7 +150,7 @@ class Git < Formula
     chmod 0644, Dir["#{share}/doc/git-doc/**/*.{html,txt}"]
     chmod 0755, Dir["#{share}/doc/git-doc/{RelNotes,howto,technical}"]
 
-    # git-send-email needs Net::SMTP::SSL
+    # git-send-email needs Net::SMTP::SSL or Net::SMTP >= 2.34
     resource("Net::SMTP::SSL").stage do
       (share/"perl5").install "lib/Net"
     end
@@ -143,11 +163,13 @@ class Git < Formula
 
     # Set the macOS keychain credential helper by default
     # (as Apple's CLT's git also does this).
-    (buildpath/"gitconfig").write <<~EOS
-      [credential]
-      \thelper = osxkeychain
-    EOS
-    etc.install "gitconfig"
+    if OS.mac?
+      (buildpath/"gitconfig").write <<~EOS
+        [credential]
+        \thelper = osxkeychain
+      EOS
+      etc.install "gitconfig"
+    end
   end
 
   def caveats
@@ -165,14 +187,16 @@ class Git < Formula
     system bin/"git", "commit", "-a", "-m", "Initial Commit"
     assert_equal "haunted\nhouse", shell_output("#{bin}/git ls-files").strip
 
-    # Check Net::SMTP::SSL was installed correctly.
-    %w[foo bar].each { |f| touch testpath/f }
-    system bin/"git", "add", "foo", "bar"
-    system bin/"git", "commit", "-a", "-m", "Second Commit"
-    assert_match "Authentication Required", pipe_output(
-      "#{bin}/git send-email --from=test@example.com --to=dev@null.com " \
-      "--smtp-server=smtp.gmail.com --smtp-server-port=587 " \
-      "--smtp-encryption=tls --confirm=never HEAD^ 2>&1",
-    )
+    # Check Net::SMTP or Net::SMTP::SSL works for git-send-email
+    on_macos do
+      %w[foo bar].each { |f| touch testpath/f }
+      system bin/"git", "add", "foo", "bar"
+      system bin/"git", "commit", "-a", "-m", "Second Commit"
+      assert_match "Authentication Required", pipe_output(
+        "#{bin}/git send-email --from=test@example.com --to=dev@null.com " \
+        "--smtp-server=smtp.gmail.com --smtp-server-port=587 " \
+        "--smtp-encryption=tls --confirm=never HEAD^ 2>&1",
+      )
+    end
   end
 end

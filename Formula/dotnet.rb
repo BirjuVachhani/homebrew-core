@@ -2,8 +2,8 @@ class Dotnet < Formula
   desc ".NET Core"
   homepage "https://dotnet.microsoft.com/"
   url "https://github.com/dotnet/source-build.git",
-      tag:      "v5.0.103-SDK",
-      revision: "ccff33e9e87656ab8349dba6779363b15d53d56a"
+      tag:      "v5.0.207-SDK",
+      revision: "52296950a9e8d1b34a2e0e10e4b8bb06daba2dcc"
   license "MIT"
 
   livecheck do
@@ -12,19 +12,34 @@ class Dotnet < Formula
   end
 
   bottle do
-    sha256 cellar: :any, big_sur:  "5c84f114b503fb06056fbb92ff9ef62a577200e24b9db5d38805527010d301e3"
-    sha256 cellar: :any, catalina: "dccd1ebb58287b14a845f9c6cde98f449bfd3bbc94ea532f03917e486efb1e3f"
-    sha256 cellar: :any, mojave:   "f9bd9adff1ec683b00f63d6349bd50a22a8cf51fed9c7dd0c5a55b9aa6ddfe62"
+    sha256 cellar: :any,                 big_sur:      "dd058f1a46a84ee8cfbdf5450a5248ca1b5af91ae018efd5f96b0b760a4cc84f"
+    sha256 cellar: :any,                 catalina:     "a9c2b8e900351d1cb074100a60de404f033436032c1116c6094351446253e777"
+    sha256 cellar: :any,                 mojave:       "b7a7a743c0b409569cc5f139ada574e0b32f331b2950252a5afb2809123514d7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "dd46b0305e565a6a6da6768a2d8d15a4e080cae9b9f29c4e9595067ed068d8c9"
   end
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on xcode: :build
+  depends_on arch: :x86_64
   depends_on "curl"
   depends_on "icu4c"
   depends_on "openssl@1.1"
 
+  uses_from_macos "krb5"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "llvm" => [:build, :test]
+    depends_on "libunwind"
+    depends_on "lttng-ust"
+  end
+
+  fails_with :gcc
+
   def install
+    ENV.append_path "LD_LIBRARY_PATH", Formula["icu4c"].opt_lib if OS.linux?
+
     # Arguments needed to not artificially time-limit downloads from Azure.
     # See the following GitHub issue comment for details:
     # https://github.com/dotnet/source-build/issues/1596#issuecomment-670995776

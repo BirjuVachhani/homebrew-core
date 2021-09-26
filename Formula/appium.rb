@@ -3,57 +3,39 @@ require "language/node"
 class Appium < Formula
   desc "Automation for Apps"
   homepage "https://appium.io/"
-  url "https://registry.npmjs.org/appium/-/appium-1.20.2.tgz"
-  sha256 "a707dc2f21890774b289d87a35caf5e4ca1211d794cbb4daa1b4a82174c6ab43"
+  url "https://registry.npmjs.org/appium/-/appium-1.22.0.tgz"
+  sha256 "69194d5d4ea68e6de101a12332e1484e211ff07a299f1fcf1736e91332a634e7"
   license "Apache-2.0"
-  head "https://github.com/appium/appium.git"
+  head "https://github.com/appium/appium.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "73c0488d2b56b71fa63c6ac64cf3907ba3af4af58edc1eb32501f15dcca98746"
-    sha256 cellar: :any, big_sur:       "041e871dbb940d86bf7ca1c389ffd1ee4edfbebbe33e050c2c9ce614b06040f7"
-    sha256 cellar: :any, catalina:      "e37ee0e06e21738b0cd4b3e30ceb3699dfc2adaf310fe672d7178b9e7263dad8"
-    sha256 cellar: :any, mojave:        "272492e72dda7b421261a7197fb77dc07fcbb63f01692485cc3b94201d7afb64"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "aef088c27cda107b9106c01720f814152bf2ea97cb94b59bc736e459e78aa911"
+    sha256 cellar: :any_skip_relocation, big_sur:       "2817c721f277da6d1e4ba0ed7272ca1d4291b538a0efd6f84fd8c43d86951066"
+    sha256 cellar: :any_skip_relocation, catalina:      "2817c721f277da6d1e4ba0ed7272ca1d4291b538a0efd6f84fd8c43d86951066"
+    sha256 cellar: :any_skip_relocation, mojave:        "2817c721f277da6d1e4ba0ed7272ca1d4291b538a0efd6f84fd8c43d86951066"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "aef088c27cda107b9106c01720f814152bf2ea97cb94b59bc736e459e78aa911"
   end
 
   depends_on "node"
 
   def install
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
+    system "npm", "install", *Language::Node.std_npm_install_args(libexec), "--chromedriver-skip-install"
     bin.install_symlink Dir["#{libexec}/bin/*"]
+
+    # Delete obsolete module appium-ios-driver, which installs universal binaries
+    rm_rf libexec/"lib/node_modules/appium/node_modules/appium-ios-driver"
   end
 
   plist_options manual: "appium"
 
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <true/>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{bin}/appium</string>
-          </array>
-          <key>EnvironmentVariables</key>
-          <dict>
-            <key>PATH</key>
-            <string>#{HOMEBREW_PREFIX}/bin:#{HOMEBREW_PREFIX}/sbin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-          </dict>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/appium-error.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/appium.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"appium"
+    environment_variables PATH: std_service_path_env
+    run_type :immediate
+    keep_alive true
+    error_log_path var/"log/appium-error.log"
+    log_path var/"log/appium.log"
+    working_dir var
   end
 
   test do

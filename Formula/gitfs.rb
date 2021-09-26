@@ -6,13 +6,11 @@ class Gitfs < Formula
   url "https://github.com/presslabs/gitfs/archive/0.5.2.tar.gz"
   sha256 "921e24311e3b8ea3a5448d698a11a747618ee8dd62d5d43a85801de0b111cbf3"
   license "Apache-2.0"
-  revision 5
+  revision 6
   head "https://github.com/presslabs/gitfs.git"
 
   bottle do
-    sha256 cellar: :any, catalina:    "c8c83c94da3b5f1dc480eec0ede90bf678eee59a97bb54a64cf94555d9c57752"
-    sha256 cellar: :any, mojave:      "189008579b9d28a9084536f62101051648b64a78cd6faf780b3f40041becc188"
-    sha256 cellar: :any, high_sierra: "218c5f19bcecb33e4f18c19cf0f56ce6d9628d4cfad9f095fbb1071af3cd79c2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "966695285a09ccdcdb0a2781a8c7368c71da9067fda325acc4f3289b4246f03b"
   end
 
   depends_on "libgit2"
@@ -21,8 +19,7 @@ class Gitfs < Formula
   uses_from_macos "libffi"
 
   on_macos do
-    deprecate! date: "2020-11-10", because: "requires FUSE"
-    depends_on :osxfuse
+    disable! date: "2021-04-08", because: "requires closed-source macFUSE"
   end
 
   on_linux do
@@ -51,8 +48,15 @@ class Gitfs < Formula
   end
 
   resource "pygit2" do
-    url "https://files.pythonhosted.org/packages/1d/c4/e0ba65178512a724a86b39565d7f9286c16d7f8e45e2f665973065c4a495/pygit2-1.1.1.tar.gz"
-    sha256 "9255d507d5d87bf22dfd57997a78908010331fc21f9a83eca121a53f657beb3c"
+    url "https://files.pythonhosted.org/packages/6b/23/a8c5b726a58282fe2cadcc63faaddd4be147c3c8e0bd38b233114adf98fd/pygit2-1.6.1.tar.gz"
+    sha256 "c3303776f774d3e0115c1c4f6e1fc35470d15f113a7ae9401a0b90acfa1661ac"
+
+    # libgit2 1.2+ support
+    # https://github.com/libgit2/pygit2/pull/1089
+    patch do
+      url "https://raw.githubusercontent.com/Homebrew/formula-patches/bf370d7782f7686a4a61d8d7d28068e78e28e48c/pygit2/libgit2-1.2.0.patch"
+      sha256 "b5acca41ff7752ea25adb050d7494939fc6d471f4f91d94a06f4afc9902f4117"
+    end
   end
 
   resource "six" do
@@ -75,12 +79,20 @@ class Gitfs < Formula
   end
 
   def caveats
+    on_macos do
+      return <<~EOS
+        The reasons for disabling this formula can be found here:
+          https://github.com/Homebrew/homebrew-core/pull/64491
+
+        An external tap may provide a replacement formula. See:
+          https://docs.brew.sh/Interesting-Taps-and-Forks
+      EOS
+    end
+
     <<~EOS
       gitfs clones repos in /var/lib/gitfs. You can either create it with
       sudo mkdir -m 1777 /var/lib/gitfs or use another folder with the
       repo_path argument.
-
-      Also make sure OSXFUSE is properly installed by running brew info osxfuse.
     EOS
   end
 

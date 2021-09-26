@@ -1,10 +1,9 @@
 class PythonAT38 < Formula
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org/"
-  url "https://www.python.org/ftp/python/3.8.8/Python-3.8.8.tar.xz"
-  sha256 "7c664249ff77e443d6ea0e4cf0e587eae918ca3c48d081d1915fe2a1f1bcc5cc"
+  url "https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tar.xz"
+  sha256 "b1d3a76420375343b5e8a22fceb1ac65b77193e9ed27146524f0a9db058728ea"
   license "Python-2.0"
-  revision 1
 
   livecheck do
     url "https://www.python.org/ftp/python/"
@@ -12,24 +11,16 @@ class PythonAT38 < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "d69d6259b306244ad832f35ce26982b51c3886798466048482fceb30a3b8af9e"
-    sha256 big_sur:       "17d85e5de9771365d769bad9bd7cc3f126f3eaa004c3ff684368a930d7fa710f"
-    sha256 catalina:      "898ace209da0f175407aad47f4076bb8a3ba40b9d3ef8480ad93abf733d284ed"
-    sha256 mojave:        "f185acb02fb2c9c5c884d4b94f878ebcce1f42302f56c073407c27d6e261a579"
+    sha256 arm64_big_sur: "cb44445caa00efd70c2b809d0fcca436200304fd798f10b61a5d6f9b96656c52"
+    sha256 big_sur:       "e7850f7c142853b69b3e3849e4a8d83817e2a331f9a6581813b36ef9c63f3add"
+    sha256 catalina:      "0ab8f1428b00ff48ea64f9e8108a5a5a48bfc2268b35216585ca73adfb6cd1aa"
+    sha256 mojave:        "9a493fe975a25ede0d82ee6fcd4e3b2b4db53d14159f0eb8161f912f4c8b0835"
+    sha256 x86_64_linux:  "3f508b82c8fd66a197b4ecf43e21ba7041637ce813b6c5fc4f603dcdb10cb504"
   end
 
   # setuptools remembers the build flags python is built with and uses them to
   # build packages later. Xcode-only systems need different flags.
-  pour_bottle? do
-    on_macos do
-      reason <<~EOS
-        The bottle needs the Apple Command Line Tools to be installed.
-          You can install them, if desired, with:
-            xcode-select --install
-      EOS
-      satisfy { MacOS::CLT.installed? }
-    end
-  end
+  pour_bottle? only_if: :clt_installed
 
   keg_only :versioned_formula
 
@@ -53,36 +44,20 @@ class PythonAT38 < Formula
   skip_clean "bin/easy_install3", "bin/easy_install-3.4", "bin/easy_install-3.5", "bin/easy_install-3.6",
              "bin/easy_install-3.7", "bin/easy_install-3.8"
 
+  # Always update to latest release
   resource "setuptools" do
-    url "https://files.pythonhosted.org/packages/12/68/95515eaff788370246dac534830ea9ccb0758e921ac9e9041996026ecaf2/setuptools-53.0.0.tar.gz"
-    sha256 "1b18ef17d74ba97ac9c0e4b4265f123f07a8ae85d9cd093949fa056d3eeeead5"
+    url "https://files.pythonhosted.org/packages/db/e2/c0ced9ccffb61432305665c22842ea120c0f649eec47ecf2a45c596707c4/setuptools-57.4.0.tar.gz"
+    sha256 "6bac238ffdf24e8806c61440e755192470352850f3419a52f26ffe0a1a64f465"
   end
 
   resource "pip" do
-    url "https://files.pythonhosted.org/packages/b7/2d/ad02de84a4c9fd3b1958dc9fb72764de1aa2605a9d7e943837be6ad82337/pip-21.0.1.tar.gz"
-    sha256 "99bbde183ec5ec037318e774b0d8ae0a64352fe53b2c7fd630be1d07e94f41e5"
+    url "https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
+    sha256 "0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b"
   end
 
   resource "wheel" do
-    url "https://files.pythonhosted.org/packages/ed/46/e298a50dde405e1c202e316fa6a3015ff9288423661d7ea5e8f22f589071/wheel-0.36.2.tar.gz"
-    sha256 "e11eefd162658ea59a60a0f6c7d493a7190ea4b9a85e335b33489d9f17e0245e"
-  end
-
-  # Patch for MACOSX_DEPLOYMENT_TARGET on Big Sur, not yet backported to the 3.8 branch
-  # https://bugs.python.org/issue42504
-  # https://github.com/python/cpython/pull/23556
-  patch do
-    url "https://github.com/python/cpython/commit/09a698b4.patch?full_index=1"
-    sha256 "a297c429ca83847d1d3ae84bdbb66e8a035731fd17955205de37c902d13300bf"
-  end
-
-  # Remove this block when upstream backports arm64 compatibility to the 3.8 branch
-  if Hardware::CPU.arm?
-    # Upstream PRs #20171, #21114, #21224 and #21249
-    patch do
-      url "https://raw.githubusercontent.com/Homebrew/formula-patches/cef51fde/python/3.8.7.patch"
-      sha256 "01ebca9fed99fd0b34abfd198e7d6137e3f851d9d1a07ded837b28c7998e810c"
-    end
+    url "https://files.pythonhosted.org/packages/4e/be/8139f127b4db2f79c8b117c80af56a3078cc4824b5b94250c7f81a70e03b/wheel-0.37.0.tar.gz"
+    sha256 "e2ef7239991699e3355d54f8e968a21bb940a1dbf34a4d226741e64462516fad"
   end
 
   # Link against libmpdec.so.3, update for mpdecimal.h symbol cleanup.
@@ -116,7 +91,7 @@ class PythonAT38 < Formula
     ENV["PYTHONPATH"] = nil
 
     # Override the auto-detection in setup.py, which assumes a universal build.
-    on_macos do
+    if OS.mac?
       ENV["PYTHON_DECIMAL_WITH_MACHINE"] = Hardware::CPU.arm? ? "uint128" : "x64"
     end
 
@@ -131,12 +106,10 @@ class PythonAT38 < Formula
       --with-system-libmpdec
     ]
 
-    on_macos do
+    if OS.mac?
       args << "--enable-framework=#{frameworks}"
       args << "--with-dtrace"
-    end
-
-    on_linux do
+    else
       args << "--enable-shared"
 
       # Required for the _ctypes module
@@ -152,7 +125,7 @@ class PythonAT38 < Formula
     cflags         = []
     cflags_nodist  = ["-I#{HOMEBREW_PREFIX}/include"]
     ldflags        = []
-    ldflags_nodist = ["-L#{HOMEBREW_PREFIX}/lib"]
+    ldflags_nodist = ["-L#{HOMEBREW_PREFIX}/lib", "-Wl,-rpath,#{HOMEBREW_PREFIX}/lib"]
     cppflags       = ["-I#{HOMEBREW_PREFIX}/include"]
 
     if MacOS.sdk_path_if_needed
@@ -171,12 +144,23 @@ class PythonAT38 < Formula
     # superenv makes cc always find includes/libs!
     inreplace "setup.py",
       "do_readline = self.compiler.find_library_file(self.lib_dirs, 'readline')",
-      "do_readline = '#{Formula["readline"].opt_lib}/libhistory.dylib'"
+      "do_readline = '#{Formula["readline"].opt_lib}/#{shared_library("libhistory")}'"
 
     inreplace "setup.py" do |s|
       s.gsub! "sqlite_setup_debug = False", "sqlite_setup_debug = True"
       s.gsub! "for d_ in self.inc_dirs + sqlite_inc_paths:",
               "for d_ in ['#{Formula["sqlite"].opt_include}']:"
+    end
+
+    if OS.linux?
+      # Python's configure adds the system ncurses include entry to CPPFLAGS
+      # when doing curses header check. The check may fail when there exists
+      # a 32-bit system ncurses (conflicts with the brewed 64-bit one).
+      # See https://github.com/Homebrew/linuxbrew-core/pull/22307#issuecomment-781896552
+      # We want our ncurses! Override system ncurses includes!
+      inreplace "configure",
+        'CPPFLAGS="$CPPFLAGS -I/usr/include/ncursesw"',
+        "CPPFLAGS=\"$CPPFLAGS -I#{Formula["ncurses"].opt_include}\""
     end
 
     # Allow python modules to use ctypes.find_library to find homebrew's stuff
@@ -200,15 +184,13 @@ class PythonAT38 < Formula
     ENV.deparallelize do
       # Tell Python not to install into /Applications (default for framework builds)
       system "make", "install", "PYTHONAPPSDIR=#{prefix}"
-      on_macos do
-        system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
-      end
+      system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}" if OS.mac?
     end
 
     # Any .app get a " 3" attached, so it does not conflict with python 2.x.
     Dir.glob("#{prefix}/*.app") { |app| mv app, app.sub(/\.app$/, " 3.app") }
 
-    on_macos do
+    if OS.mac?
       # Prevent third-party packages from building against fragile Cellar paths
       inreplace Dir[lib_cellar/"**/_sysconfigdata__darwin_darwin.py",
                     lib_cellar/"config*/Makefile",
@@ -224,9 +206,7 @@ class PythonAT38 < Formula
       inreplace Dir[lib_cellar/"**/_sysconfigdata__darwin_darwin.py"],
                 %r{('LINKFORSHARED': .*?)'(Python.framework/Versions/3.\d+/Python)'}m,
                 "\\1'#{opt_prefix}/Frameworks/\\2'"
-    end
-
-    on_linux do
+    else
       # Prevent third-party packages from building against fragile Cellar paths
       inreplace Dir[lib_cellar/"**/_sysconfigdata_*linux_x86_64-*.py",
                     lib_cellar/"config*/Makefile",

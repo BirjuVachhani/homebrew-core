@@ -5,6 +5,11 @@ class Teapot < Formula
   sha256 "580e0cb416ae3fb3df87bc6e92e43bf72929d47b65ea2b50bc09acea3bff0b65"
   license "GPL-3.0"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?teapot[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
     rebuild 1
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "ebe49b24ad7903b64f8cc19a560a58b5cb1e704bcf923a79275e0264607f3541"
@@ -15,7 +20,6 @@ class Teapot < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "f0dc057cdfa1aa5168898a22791ee72fd3e525fd750838e94147f8b3811c1b07"
     sha256 cellar: :any_skip_relocation, el_capitan:    "84673e8886e1f24250116d8c423383d0babbc53e1cb669ba46b45a37a2344399"
     sha256 cellar: :any_skip_relocation, yosemite:      "0ffd7fa1ac31cc91c9c71d225d26970e23da5719d7505d4a1dcaf40617c44afb"
-    sha256 cellar: :any_skip_relocation, mavericks:     "24dd3dfcdc52f47f3247ae56931cc9864434118e8d097e64e72201fdaeb08391"
   end
 
   depends_on "cmake" => :build

@@ -4,6 +4,11 @@ class Regldg < Formula
   url "https://regldg.com/regldg-1.0.0.tar.gz"
   sha256 "cd550592cc7a2f29f5882dcd9cf892875dd4e84840d8fe87133df9814c8003f1"
 
+  livecheck do
+    url "https://regldg.com/download.php"
+    regex(/href=.*?regldg[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
     sha256 cellar: :any_skip_relocation, arm64_big_sur: "d6456b6abf558106d2cae0459145d3070b07dc37d3757f84d325f11aaa7badf4"
     sha256 cellar: :any_skip_relocation, big_sur:       "30966f99bf5fa0f3af539ce5b8eaca2666db734ac561d2b3a261532636b2a54c"
@@ -13,7 +18,6 @@ class Regldg < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "26f12ca7e41b36a167d94f403b97557490fd1ad0ed1a2d4d0b30c86164ae9d39"
     sha256 cellar: :any_skip_relocation, el_capitan:    "52c64d6766b68a1ed602d3878368109d3ac3e5e60d6fc14a4606518d14f6e678"
     sha256 cellar: :any_skip_relocation, yosemite:      "c4157a77e2620b868b2dbbb3ebf126193b238c6a69d2a895420950d4203d7a17"
-    sha256 cellar: :any_skip_relocation, mavericks:     "4b3d32f6aef97ad10f581d455f4e2d97babb42e5abe749a2f746a91f10051cc6"
   end
 
   def install

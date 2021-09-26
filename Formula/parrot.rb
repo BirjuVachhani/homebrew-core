@@ -2,7 +2,7 @@ class Parrot < Formula
   desc "Open source virtual machine (for Perl6, et al.)"
   homepage "http://www.parrot.org/"
   license "Artistic-2.0"
-  head "https://github.com/parrot/parrot.git"
+  head "https://github.com/parrot/parrot.git", branch: "master"
 
   stable do
     url "http://ftp.parrot.org/releases/supported/8.1.0/parrot-8.1.0.tar.bz2"
@@ -31,7 +31,6 @@ class Parrot < Formula
     sha256 sierra:        "e8c50fee6a2111412b5f6ac31292f3ff7d3e4dd2be9a02cc94a890026588ae63"
     sha256 el_capitan:    "3b78be029276ca642cb2bc705888ed0cd7745c0398cf90bf67031190191c76a8"
     sha256 yosemite:      "37a9ad2396bcf355d6d7ae2d432489e316d3290528947a6f1a30e753fed59902"
-    sha256 mavericks:     "ff4125f633f43c19134e2520c0964025f4ea14efd5ce826d0cd905c550fbb24a"
   end
 
   conflicts_with "rakudo-star"

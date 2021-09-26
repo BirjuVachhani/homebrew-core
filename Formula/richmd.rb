@@ -3,15 +3,16 @@ class Richmd < Formula
 
   desc "Format Markdown in the terminal with Rich"
   homepage "https://github.com/willmcgugan/rich"
-  url "https://files.pythonhosted.org/packages/ae/f6/6ffb46f6cf0bb584e44279accd3321cb838b78b324031feb8fd9adf63ed2/rich-9.13.0.tar.gz"
-  sha256 "d59e94a0e3e686f0d268fe5c7060baa1bd6744abca71b45351f5850a3aaa6764"
+  url "https://files.pythonhosted.org/packages/57/3f/a8ba181148dcb9184cb0afac66d075fce60f06f926ce9cdab3dc61fd6497/rich-10.11.0.tar.gz"
+  sha256 "016fa105f34b69c434e7f908bb5bd7fefa9616efdb218a2917117683a6394ce5"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "d3cb05a5be962f914908e05d1e788ce639c0873de907a322c266b5387eb5088f"
-    sha256 cellar: :any_skip_relocation, big_sur:       "d297c65f21ca4d9f0f2b1f629a58f878eb1262aec6fb48202ca51a56536d99c6"
-    sha256 cellar: :any_skip_relocation, catalina:      "7b39ce207934d9327bb4ea8f63898124be3253990adfe0245b36c1bc3a2975a3"
-    sha256 cellar: :any_skip_relocation, mojave:        "2264250d39f74ff907b290a7386eb1262e4ac8af99fd236a214c5e529842644c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "84b0b7effcabf0da687498d844ed3f57c3149eb510732a08b71391f1888d3dea"
+    sha256 cellar: :any_skip_relocation, big_sur:       "492a44887bb591e7f70b94486019eaac108de1ecfcfd57eaa1a05fa2748529ef"
+    sha256 cellar: :any_skip_relocation, catalina:      "c62b52ce6464a2a8a543ee5c07308ca6c8beeba738d8311e9c55ce201ce6d886"
+    sha256 cellar: :any_skip_relocation, mojave:        "caa768c8e228d20919186690efd3327b14f65d4f96abc7792a0037f903dbd905"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "69313cfad19790a4eb0905b3e5a22168aef1aca7ba06e5930b758645bd2de912"
   end
 
   depends_on "python@3.9"
@@ -27,13 +28,8 @@ class Richmd < Formula
   end
 
   resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/19/d0/dec5604a275b19b0ebd2b9c43730ce39549c8cd8602043eaf40c541a7256/Pygments-2.8.0.tar.gz"
-    sha256 "37a13ba168a02ac54cc5891a42b1caec333e59b66addb7fa633ea8a6d73445c0"
-  end
-
-  resource "typing-extensions" do
-    url "https://files.pythonhosted.org/packages/16/06/0f7367eafb692f73158e5c5cbca1aec798cdf78be5167f6415dd4205fa32/typing_extensions-3.7.4.3.tar.gz"
-    sha256 "99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"
+    url "https://files.pythonhosted.org/packages/b7/b3/5cba26637fe43500d4568d0ee7b7362de1fb29c0e158d50b4b69e9a40422/Pygments-2.10.0.tar.gz"
+    sha256 "f398865f7eb6874156579fdf36bc840a03cab64d1cde9e93d68f46a425ec52c6"
   end
 
   def install

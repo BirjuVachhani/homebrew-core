@@ -2,8 +2,8 @@ class Kamel < Formula
   desc "Apache Camel K CLI"
   homepage "https://camel.apache.org/"
   url "https://github.com/apache/camel-k.git",
-      tag:      "v1.3.1",
-      revision: "b705f57d2503505388e40931a8c97ad50fc2d346"
+      tag:      "v1.6.0",
+      revision: "e929db111d6d8ac000f9262342cb3d2eed157aad"
   license "Apache-2.0"
   head "https://github.com/apache/camel-k.git"
 
@@ -13,10 +13,11 @@ class Kamel < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "c52e7f5e007e12e4c191db92ed779e7aded3e09a42284871a50c52fec108c311"
-    sha256 cellar: :any_skip_relocation, big_sur:       "5e07672ad25869206e8d43c1959426411b6f1a410e44e4e2279271e07c542684"
-    sha256 cellar: :any_skip_relocation, catalina:      "982c51e01f8e5bf9fb867c5107428ffe3ef000400c1d9cdc9c5710d50d4f194d"
-    sha256 cellar: :any_skip_relocation, mojave:        "356cffa21363864841e10ef0073c6a6ce25d215a7cc728d246e0953c896dfebf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "b04e659ed41867ffe0cf799af99263c6d8a04217fd98397aac66c320caf6cfa2"
+    sha256 cellar: :any_skip_relocation, big_sur:       "502265a622bc26ec8989c1f7040ac487611047d64ecaf96ecbb06228dad6b575"
+    sha256 cellar: :any_skip_relocation, catalina:      "03358c7bd13d985564f394a28b213305d2b01726cb7cec864b9005e092d24001"
+    sha256 cellar: :any_skip_relocation, mojave:        "7a1badc7d4dee8911535d1bb5af005acd96d2ff7d0ecd9b5e6f61cde7dce10ec"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "9f38fda50052a0f9121ff41000103b7b0a3f42e159911d53a99f8e1df39fe0a5"
   end
 
   depends_on "go" => :build
@@ -39,7 +40,7 @@ class Kamel < Formula
     assert_match "Apache Camel K is a lightweight", run_output
 
     help_output = shell_output("echo $(#{bin}/kamel help 2>&1)")
-    assert_match "Error: cannot get command client: invalid configuration", help_output.chomp
+    assert_match "kamel [command] --help", help_output.chomp
 
     get_output = shell_output("echo $(#{bin}/kamel get 2>&1)")
     assert_match "Error: cannot get command client: invalid configuration", get_output

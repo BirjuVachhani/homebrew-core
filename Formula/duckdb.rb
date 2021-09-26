@@ -1,23 +1,27 @@
 class Duckdb < Formula
   desc "Embeddable SQL OLAP Database Management System"
   homepage "https://www.duckdb.org"
-  url "https://github.com/cwida/duckdb.git",
-      tag:      "v0.2.3",
-      revision: "436f6455f6e48b571bf5ba0812332f08d0bd65f4"
+  url "https://github.com/duckdb/duckdb.git",
+      tag:      "v0.2.9",
+      revision: "1776611ab8770d934f44dd9c8c2ac96f743408a9"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any, big_sur:  "f3cae9c32ad042433dd66119d71b2b344d41af36fa1ce1329fcf285d917605e5"
-    sha256 cellar: :any, catalina: "a082aa7db3bf77040788cc6265f57cc0df1d62844de59cabc20460d9968a0941"
-    sha256 cellar: :any, mojave:   "14910bb5cebfda1f37a44c76f0ec20d58eda17a02370a8baac926920ffd5485b"
+    sha256 cellar: :any,                 arm64_big_sur: "4690ac3b2e1a9ad6b2b649f302a7cc263da0f075f10c3370f294c096babbc4b4"
+    sha256 cellar: :any,                 big_sur:       "53f34d296151b18be3ec75961e15d7099f5bc90eebecd6fe5a3d376f7de20b2c"
+    sha256 cellar: :any,                 catalina:      "19149ad12f65d6c161ad2b4a6d75bfc7bd40dccb0fbab75dfcbb0a6659d7a2d4"
+    sha256 cellar: :any,                 mojave:        "481aa4c9fac1c84a6aae4ab6c3897d95bd59cdf0ac69b9773429eedbf92ba109"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "8b5d3e1d8858ac59d47749baf3c3f5fae22ccdd703c937bf9bdf012fb0a69be3"
   end
 
   depends_on "cmake" => :build
   depends_on "python@3.9" => :build
+  depends_on "utf8proc"
 
   def install
+    ENV.deparallelize if OS.linux? # amalgamation builds take GBs of RAM
     mkdir "build/amalgamation"
-    system Formula["python@3.9"].opt_bin/"python3", "scripts/amalgamation.py"
+    system Formula["python@3.9"].opt_bin/"python3", "scripts/amalgamation.py", "--extended"
     cd "build/amalgamation" do
       system "cmake", "../..", *std_cmake_args, "-DAMALGAMATION_BUILD=ON"
       system "make"

@@ -1,8 +1,8 @@
 class Libgcrypt < Formula
   desc "Cryptographic library based on the code from GnuPG"
   homepage "https://gnupg.org/related_software/libgcrypt/"
-  url "https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.9.2.tar.bz2"
-  sha256 "b2c10d091513b271e47177274607b1ffba3d95b188bbfa8797f948aec9053c5a"
+  url "https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.9.4.tar.bz2"
+  sha256 "ea849c83a72454e3ed4267697e8ca03390aee972ab421e7df69dfe42b65caaf7"
   license "GPL-2.0-only"
 
   livecheck do
@@ -11,17 +11,14 @@ class Libgcrypt < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "5b078ce8004306b1430b6764ba1ba7fb7d19a1e3aee058a6d714ad42d7a8af15"
-    sha256 cellar: :any, big_sur:       "3de65930f6d96b90ef2d945b34dbebfc889f91f3408f05d66a40dc105222eedb"
-    sha256 cellar: :any, catalina:      "ed1eb018869cee6a5475422a05e75019181b8b52b8b9c1b73a7341eac6d96455"
-    sha256 cellar: :any, mojave:        "b6bf2638ebce192d39f2362f947928d5397c4c3283ef7232158bcc0e4c4eb645"
+    sha256 cellar: :any,                 arm64_big_sur: "17c61d873adf2bd5aec0858dadeeacdf75ac1f9cce3d7acbd4d0b5c43a191f98"
+    sha256 cellar: :any,                 big_sur:       "c8c50af567c82a2c68f657b4ee3422bee39944c819a939d18b73617d8e5c0476"
+    sha256 cellar: :any,                 catalina:      "6393017fddac1c337f49fc066e5a900bfac896c94a6a0aaa73acd349a757b924"
+    sha256 cellar: :any,                 mojave:        "0c54acef4c1fe000909441cd946f60bebe636fc232edff73a88bbb9df2b10447"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "963a50f5a822f6edbdf8e22d07a2b10349223a60143343ae9a32a9f1b65ee8a9"
   end
 
   depends_on "libgpg-error"
-
-  # Fix --disable-asm build on Intel. https://dev.gnupg.org/T5277
-  # Reverts https://dev.gnupg.org/rC8d404a629167d67ed56e45de3e65d1e0b7cdeb24
-  patch :DATA
 
   def install
     system "./configure", "--disable-dependency-tracking",
@@ -29,14 +26,14 @@ class Libgcrypt < Formula
                           "--enable-static",
                           "--prefix=#{prefix}",
                           "--disable-asm",
-                          "--with-libgpg-error-prefix=#{Formula["libgpg-error"].opt_prefix}",
-                          "--disable-jent-support" # Requires ENV.O0, which is unpleasant.
+                          "--with-libgpg-error-prefix=#{Formula["libgpg-error"].opt_prefix}"
+
+    # The jitter entropy collector must be built without optimisations
+    ENV.O0 { system "make", "-C", "random", "rndjent.o", "rndjent.lo" }
 
     # Parallel builds work, but only when run as separate steps
     system "make"
-    on_macos do
-      MachO.codesign!("#{buildpath}/tests/.libs/random") if Hardware::CPU.arm?
-    end
+    MachO.codesign!("#{buildpath}/tests/.libs/random") if OS.mac? && Hardware::CPU.arm?
 
     system "make", "check"
     system "make", "install"
@@ -51,47 +48,3 @@ class Libgcrypt < Formula
     assert_match "0e824ce7c056c82ba63cc40cffa60d3195b5bb5feccc999a47724cc19211aef6", output
   end
 end
-
-__END__
-diff --git a/src/g10lib.h b/src/g10lib.h
-index 243997e..1987265 100644
---- a/src/g10lib.h
-+++ b/src/g10lib.h
-@@ -217,7 +217,6 @@ char **_gcry_strtokenize (const char *string, const char *delim);
- 
- 
- /*-- src/hwfeatures.c --*/
--#if defined(HAVE_CPU_ARCH_X86)
- 
- #define HWF_PADLOCK_RNG         (1 << 0)
- #define HWF_PADLOCK_AES         (1 << 1)
-@@ -238,29 +237,21 @@ char **_gcry_strtokenize (const char *string, const char *delim);
- #define HWF_INTEL_RDTSC         (1 << 15)
- #define HWF_INTEL_SHAEXT        (1 << 16)
- 
--#elif defined(HAVE_CPU_ARCH_ARM)
--
- #define HWF_ARM_NEON            (1 << 0)
- #define HWF_ARM_AES             (1 << 1)
- #define HWF_ARM_SHA1            (1 << 2)
- #define HWF_ARM_SHA2            (1 << 3)
- #define HWF_ARM_PMULL           (1 << 4)
- 
--#elif defined(HAVE_CPU_ARCH_PPC)
--
- #define HWF_PPC_VCRYPTO         (1 << 0)
- #define HWF_PPC_ARCH_3_00       (1 << 1)
- #define HWF_PPC_ARCH_2_07       (1 << 2)
- 
--#elif defined(HAVE_CPU_ARCH_S390X)
--
- #define HWF_S390X_MSA           (1 << 0)
- #define HWF_S390X_MSA_4         (1 << 1)
- #define HWF_S390X_MSA_8         (1 << 2)
- #define HWF_S390X_VX            (1 << 3)
- 
--#endif
--
- gpg_err_code_t _gcry_disable_hw_feature (const char *name);
- void _gcry_detect_hw_features (void);
- unsigned int _gcry_get_hw_features (void);

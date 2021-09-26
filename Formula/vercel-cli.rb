@@ -3,18 +3,23 @@ require "language/node"
 class VercelCli < Formula
   desc "Command-line interface for Vercel"
   homepage "https://vercel.com/home"
-  url "https://registry.npmjs.org/vercel/-/vercel-21.3.3.tgz"
-  sha256 "e2b0d36af7ca06839075a2a8eda6b15087ae9fa9a76c073bfeaeebe4e1e0c71f"
+  url "https://registry.npmjs.org/vercel/-/vercel-23.1.2.tgz"
+  sha256 "4d70d24cd61c69e7925c44119516b57ec3614815cb9e7ad95d15e2e5297f3fff"
   license "Apache-2.0"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "a8f3c8ef6c2a2ef12137cdcea5cb732628c9c920a8950f9508a4070e39cdd32c"
-    sha256 cellar: :any_skip_relocation, big_sur:       "2d3370861bfb990c207e8cc340e9143822366ca0ff72bdafa5d58fc37969ca41"
-    sha256 cellar: :any_skip_relocation, catalina:      "4f40cc1263dd6d90dc5b78e3bcb27f33592898034fba02eac99583ee893e9c0b"
-    sha256 cellar: :any_skip_relocation, mojave:        "51e052f8d722003f300276ca3bf9f966b116e398a76fbc599fa1cf62df58183a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "d29c72ee982f0570268925aa018ed305602ee7852374ac1ae0da2ccfc72153e0"
+    sha256 cellar: :any_skip_relocation, big_sur:       "7f43661170b3cb218a03326790a654d97abcbf7a4cfcd344f9286a095bf023ec"
+    sha256 cellar: :any_skip_relocation, catalina:      "7f43661170b3cb218a03326790a654d97abcbf7a4cfcd344f9286a095bf023ec"
+    sha256 cellar: :any_skip_relocation, mojave:        "7f43661170b3cb218a03326790a654d97abcbf7a4cfcd344f9286a095bf023ec"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "06b886f8dec030c4ed906a86d642343eba7629626487742f8bc8d5632fabfc8e"
   end
 
   depends_on "node"
+
+  on_macos do
+    depends_on "macos-term-size"
+  end
 
   def install
     rm Dir["dist/{*.exe,xsel}"]
@@ -22,6 +27,20 @@ class VercelCli < Formula
                                "exports.default = async()=>'brew upgrade vercel-cli'"
     system "npm", "install", *Language::Node.std_npm_install_args(libexec)
     bin.install_symlink Dir["#{libexec}/bin/*"]
+
+    term_size_vendor_dir = libexec/"lib/node_modules/vercel/node_modules/term-size/vendor"
+    term_size_vendor_dir.rmtree # remove pre-built binaries
+
+    dist_dir = libexec/"lib/node_modules/vercel/dist"
+    rm_rf dist_dir/"term-size"
+
+    if OS.mac?
+      macos_dir = term_size_vendor_dir/"macos"
+      macos_dir.mkpath
+      # Replace the vendored pre-built term-size with one we build ourselves
+      ln_sf (Formula["macos-term-size"].opt_bin/"term-size").relative_path_from(macos_dir), macos_dir
+      ln_sf (Formula["macos-term-size"].opt_bin/"term-size").relative_path_from(dist_dir), dist_dir
+    end
   end
 
   test do

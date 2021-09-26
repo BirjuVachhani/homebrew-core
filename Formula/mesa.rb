@@ -3,21 +3,22 @@ class Mesa < Formula
 
   desc "Graphics Library"
   homepage "https://www.mesa3d.org/"
-  url "https://archive.mesa3d.org/mesa-21.0.0.tar.xz"
-  sha256 "e6204e98e6a8d77cf9dc5d34f99dd8e3ef7144f3601c808ca0dd26ba522e0d84"
+  url "https://mesa.freedesktop.org/archive/mesa-21.2.2.tar.xz"
+  sha256 "c4aaf1bf974217ed825e1c536de6ab72a4e266d44bcf69fc4ec499039f99e5c4"
   license "MIT"
-  head "https://gitlab.freedesktop.org/mesa/mesa.git"
+  head "https://gitlab.freedesktop.org/mesa/mesa.git", branch: "main"
 
   livecheck do
-    url "https://archive.mesa3d.org/"
+    url "https://mesa.freedesktop.org/archive/"
     regex(/href=.*?mesa[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
   bottle do
-    sha256 arm64_big_sur: "a2b617ac47e7b62689b159f6cec26c0ab58232f1107e97d5aa7d526716985ac8"
-    sha256 big_sur:       "1156d7e7613c4c85d641e88dfa0dd8e5ccd26dff5921ef0043319d2f9566121a"
-    sha256 catalina:      "aed8cf54ca7e305a825cbcc0f5f784c1269e76516ef5622c31da77869547f0e9"
-    sha256 mojave:        "977792ae909b0fb0e1f98ca7404ae2b9bd1d9a7acaadc415ce2481e869083860"
+    sha256 arm64_big_sur: "b9cd776e06228f8ab10a41fcb4508067d242e3b84764690298b0192c5b577173"
+    sha256 big_sur:       "8242a55cb95ecf089e8719d27bb404b8ccc8a54cd96e57654c799e9bb454bde1"
+    sha256 catalina:      "ebbb6af00f74c47b616ac566c4ce62230a0850a3102a67587d6b271f9115312b"
+    sha256 mojave:        "067ca2014dc31f632439d320502793810926bc4e6a01e1196cdd5c6f02bd5206"
+    sha256 x86_64_linux:  "8168bd1b1815316a35f54526d7f625c376b597d2888f840a95fbb7bd3b53f24f"
   end
 
   depends_on "meson" => :build
@@ -31,9 +32,34 @@ class Mesa < Formula
   depends_on "libxdamage"
   depends_on "libxext"
 
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
+  uses_from_macos "llvm"
+  uses_from_macos "ncurses"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "elfutils"
+    depends_on "gcc"
+    depends_on "libdrm"
+    depends_on "libva"
+    depends_on "libvdpau"
+    depends_on "libxfixes"
+    depends_on "libxrandr"
+    depends_on "libxshmfence"
+    depends_on "libxv"
+    depends_on "libxvmc"
+    depends_on "libxxf86vm"
+    depends_on "lm-sensors"
+    depends_on "wayland"
+    depends_on "wayland-protocols"
+  end
+
+  fails_with gcc: "5"
+
   resource "Mako" do
-    url "https://files.pythonhosted.org/packages/5c/db/2d2d88b924aa4674a080aae83b59ea19d593250bfe5ed789947c21736785/Mako-1.1.4.tar.gz"
-    sha256 "17831f0b7087c313c0ffae2bcbbd3c1d5ba9eeac9c38f2eb7b50e8c99fe9d5ab"
+    url "https://files.pythonhosted.org/packages/d1/42/ff293411e980debfc647be9306d89840c8b82ea24571b014f1a35b2ad80f/Mako-1.1.5.tar.gz"
+    sha256 "169fa52af22a91900d852e937400e79f535496191c63712e3b9fda5a9bed6fc3"
   end
 
   resource "glxgears.c" do
@@ -46,11 +72,6 @@ class Mesa < Formula
     sha256 "c727b2341d81c2a1b8a0b31e46d24f9702a1ec55c8be3f455ddc8d72120ada72"
   end
 
-  patch do
-    url "https://gitlab.freedesktop.org/mesa/mesa/-/commit/50064ad367449afad03c927f7e572c138b05c5d4.patch"
-    sha256 "aa3fa361a8626d442aefdac922a7193612b77cab2410452acee40b6dbc10a800"
-  end
-
   def install
     ENV.prepend_path "PATH", Formula["python@3.9"].opt_libexec/"bin"
 
@@ -61,9 +82,36 @@ class Mesa < Formula
     ENV.prepend_path "PATH", "#{venv_root}/bin"
 
     mkdir "build" do
-      system "meson", *std_meson_args, "..", "-Db_ndebug=true"
+      args = ["-Db_ndebug=true"]
+
+      if OS.linux?
+        args << "-Dplatforms=x11,wayland"
+        args << "-Dglx=auto"
+        args << "-Ddri3=true"
+        args << "-Ddri-drivers=auto"
+        args << "-Dgallium-drivers=auto"
+        args << "-Dgallium-omx=disabled"
+        args << "-Degl=true"
+        args << "-Dgbm=true"
+        args << "-Dopengl=true"
+        args << "-Dgles1=true"
+        args << "-Dgles2=true"
+        args << "-Dxvmc=true"
+        args << "-Dvalgrind=false"
+        args << "-Dtools=drm-shim,etnaviv,freedreno,glsl,nir,nouveau,xvmc,lima"
+      end
+
+      system "meson", *std_meson_args, "..", *args
       system "ninja"
       system "ninja", "install"
+    end
+
+    if OS.linux?
+      # Strip executables/libraries/object files to reduce their size
+      system("strip", "--strip-unneeded", "--preserve-dates", *(Dir[bin/"**/*", lib/"**/*"]).select do |f|
+        f = Pathname.new(f)
+        f.file? && (f.elf? || f.extname == ".a")
+      end)
     end
   end
 

@@ -1,8 +1,9 @@
 class Monit < Formula
   desc "Manage and monitor processes, files, directories, and devices"
   homepage "https://mmonit.com/monit/"
-  url "https://mmonit.com/monit/dist/monit-5.27.2.tar.gz"
-  sha256 "d8809c78d5dc1ed7a7ba32a5a55c5114855132cc4da4805f8d3aaf8cf46eaa4c"
+  url "https://mmonit.com/monit/dist/monit-5.29.0.tar.gz"
+  sha256 "f665e6dd1f26a74b5682899a877934167de2b2582e048652ecf036318477885f"
+  license "AGPL-3.0-or-later"
 
   livecheck do
     url "https://mmonit.com/monit/dist/"
@@ -10,13 +11,18 @@ class Monit < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "773afd93ee38969dc419d15268722ff26b00b4c757357a13a1db126a979f0ad8"
-    sha256 cellar: :any, big_sur:       "604ca8a7fc489944c10ba977e347e8f32d1047eba3df964d2bc110688abf6c50"
-    sha256 cellar: :any, catalina:      "a32c42c13cbdec8feb567fdfc6c11713804335f5a5bc39215d188672f0b584cc"
-    sha256 cellar: :any, mojave:        "1b4d05159e7bc6101ff3f5cbb84f67ee941553927c23fc59780d84a4ed0d9023"
+    sha256 cellar: :any,                 arm64_big_sur: "e8e13392bd3adc86d94271aa6e4b0b3136c3df09b9a67a178dfcc4fbaa42615e"
+    sha256 cellar: :any,                 big_sur:       "a7fcbcba9af41d5eb405122132dbee449c403fb74192b587614903d56344941c"
+    sha256 cellar: :any,                 catalina:      "c83d409452660f7761f7514a0f72e9262ff6a8861b8e062d41b85a0f82a6b0d1"
+    sha256 cellar: :any,                 mojave:        "ed304427db3dea3a9c18d261a1d9cc24c5ca20d5fafe5e5ae397bde10f1254b8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "99573601eeb2e8d7377fad27e08e1a31a002eec231d84a492ec59532bfdeb49e"
   end
 
   depends_on "openssl@1.1"
+
+  on_linux do
+    depends_on "linux-pam"
+  end
 
   def install
     system "./configure", "--prefix=#{prefix}",
@@ -28,29 +34,8 @@ class Monit < Formula
     etc.install "monitrc"
   end
 
-  plist_options manual: "monit -I -c #{HOMEBREW_PREFIX}/etc/monitrc"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>              <string>#{plist_name}</string>
-          <key>ProcessType</key>        <string>Adaptive</string>
-          <key>Disabled</key>           <false/>
-          <key>RunAtLoad</key>          <true/>
-          <key>LaunchOnlyOnce</key>     <false/>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/monit</string>
-            <string>-I</string>
-            <string>-c</string>
-            <string>#{etc}/monitrc</string>
-          </array>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"monit", "-I", "-c", etc/"monitrc"]
   end
 
   test do

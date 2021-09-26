@@ -6,8 +6,10 @@ class CKermit < Formula
   sha256 "0d5f2cd12bdab9401b4c836854ebbf241675051875557783c332a6a40dac0711"
   license "BSD-3-Clause"
 
+  # C-Kermit archive file names only contain the patch version and the full
+  # version has to be obtained from text on the project page.
   livecheck do
-    url "http://www.kermitproject.org/ck90.html"
+    url "https://www.kermitproject.org/ckermit.html"
     regex(/The current C-Kermit release is v?(\d+(?:\.\d+)+) /i)
   end
 
@@ -21,7 +23,6 @@ class CKermit < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "b19ecd36ee298cba626b1276c228cdb4ee57726cf5af64166d8ff2800067e926"
     sha256 cellar: :any_skip_relocation, el_capitan:    "446776aff790c8f3b6f30be915dc18f4beffa973b92201384682beb7dc714562"
     sha256 cellar: :any_skip_relocation, yosemite:      "fe01b123ec7cddfbf46908bbf2071542a92f195d75733230896b5de78d92cdef"
-    sha256 cellar: :any_skip_relocation, mavericks:     "eebf4b834242dc754c00eb87ee5cee621d39f9369cfe67cdb620a1f81a197f20"
   end
 
   def install

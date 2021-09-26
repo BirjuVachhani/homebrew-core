@@ -3,7 +3,7 @@ class Ifstat < Formula
   homepage "http://gael.roualland.free.fr/ifstat/"
   url "http://gael.roualland.free.fr/ifstat/ifstat-1.1.tar.gz"
   sha256 "8599063b7c398f9cfef7a9ec699659b25b1c14d2bc0f535aed05ce32b7d9f507"
-  license "GPL-2.0"
+  license "GPL-2.0-or-later"
 
   livecheck do
     url :homepage
@@ -19,7 +19,7 @@ class Ifstat < Formula
     sha256 cellar: :any_skip_relocation, sierra:        "99eada14bfc555bd8f64d447bddd8a53c7325afed40446e5edbcfb5d7bdc7dd6"
     sha256 cellar: :any_skip_relocation, el_capitan:    "e3b3f843c9fba2770a49dd7abcdacc30aa6b5e57f06b5ed96f09d20ada58bd6f"
     sha256 cellar: :any_skip_relocation, yosemite:      "ecce408a9ae1a82c7b2457e5a5263ec760096e7e0e71cf0da1ce98523787bcbc"
-    sha256 cellar: :any_skip_relocation, mavericks:     "9107e6b49f17fc1a4eac3ded9e499d164fe73f1c8d9307146b9db00952a72de9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "80bb1ac13a6750229f428e108b349523896fa1bbe1823300f07e366e58cfa1c9"
   end
 
   # Fixes 32/64 bit incompatibility for snow leopard
@@ -61,4 +61,3 @@ index d5ac501..47fb320 100644
  
    if (sysctl(ifinfo, sizeof(ifinfo) / sizeof(int), ifmd, &size, NULL, 0) < 0)
      return 0;
-

@@ -3,20 +3,27 @@ class VowpalWabbit < Formula
   homepage "https://github.com/VowpalWabbit/vowpal_wabbit"
   # pull from git tag to get submodules
   url "https://github.com/VowpalWabbit/vowpal_wabbit.git",
-      tag:      "8.9.2",
-      revision: "88442026750858c1dea9218dc0666fbbb5ae6520"
+      tag:      "8.11.0",
+      revision: "96ed8316de4391b77f4f29af69f885552a644769"
   license "BSD-3-Clause"
-  head "https://github.com/VowpalWabbit/vowpal_wabbit.git"
+  revision 1
+  head "https://github.com/VowpalWabbit/vowpal_wabbit.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any, big_sur:  "8752e51cfdfadcc0c5249d31083dbef30e359ca2157ef0c3f847aaf477fbaa17"
-    sha256 cellar: :any, catalina: "584593be63000b4c0a506ad56e1eeb65f6c4ccc614c9d77383c47d1930048bb9"
-    sha256 cellar: :any, mojave:   "a1dcb3bc58bde9e00fb6968c5e3cb72542aa109bdd4f94eeb3a37254ab5142c6"
+    sha256 cellar: :any,                 arm64_big_sur: "b409d89003bcdf98e7ed731a30ebb197e06f151b75ac4f6f3906572a431eeb1f"
+    sha256 cellar: :any,                 big_sur:       "aa088ed972a626863ef2535ce3f2929ddaf7d5e64d8a7944cbff8d7d03714804"
+    sha256 cellar: :any,                 catalina:      "6340e02d379e0381d079cf8b5c6ae64bce24fbd6d808a0d5ecc0734d08094893"
+    sha256 cellar: :any,                 mojave:        "d9bcb3816f6e0cb53dad0ceb692fcd44c277471f500ea443ef4af25f733e2e48"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "c906f6f596bbc7e075ab1e192458dddf0bc5370d315d93e5d7f02aedbd36bbb2"
   end
 
   depends_on "cmake" => :build
+  depends_on "flatbuffers" => :build
   depends_on "rapidjson" => :build
+  depends_on "spdlog" => :build
   depends_on "boost"
+  depends_on "fmt"
+  depends_on "zlib"
 
   def install
     ENV.cxx11
@@ -26,14 +33,17 @@ class VowpalWabbit < Formula
     mkdir "build" do
       system "cmake", "..", *std_cmake_args,
                             "-DBUILD_TESTS=OFF",
-                            "-DRAPIDJSON_SYS_DEP=ON"
+                            "-DRAPIDJSON_SYS_DEP=ON",
+                            "-DFMT_SYS_DEP=ON",
+                            "-DSPDLOG_SYS_DEP=ON",
+                            "-DBUILD_FLATBUFFERS=ON"
       system "make", "install"
     end
     bin.install Dir["utl/*"]
     rm bin/"active_interactor.py"
-    rm bin/"new_version"
     rm bin/"vw-validate.html"
     rm bin/"clang-format"
+    rm_r bin/"flatbuffer"
   end
 
   test do

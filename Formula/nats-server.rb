@@ -1,16 +1,17 @@
 class NatsServer < Formula
   desc "Lightweight cloud messaging system"
   homepage "https://nats.io"
-  url "https://github.com/nats-io/nats-server/archive/v2.2.0.tar.gz"
-  sha256 "fca2d79dc616b52f3fddd1bc19e6e11d2496ed048c2ca90c6a30d1fbf1b6c20d"
+  url "https://github.com/nats-io/nats-server/archive/refs/tags/v2.6.1.tar.gz"
+  sha256 "8b578df282dabc75b93b17bc8defb0f2ffd596985e1d2b5d5f4c0695ed6163d6"
   license "Apache-2.0"
-  head "https://github.com/nats-io/nats-server.git"
+  head "https://github.com/nats-io/nats-server.git", branch: "main"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "479136ac4c23c3f6512949545e17507bf5fef810ea4e651b13accc1ae60f81da"
-    sha256 cellar: :any_skip_relocation, big_sur:       "cc145e5f9bce4f22b50d9bdffb16d69868c79a1df00aacf6bf580975a31023cd"
-    sha256 cellar: :any_skip_relocation, catalina:      "fa6ebe6376e3c5d71272bc0e574c2d9de324b7ebde31e50dbf1891a90ec8cf4f"
-    sha256 cellar: :any_skip_relocation, mojave:        "2f2bb3a49e94a185e4afd5de242de47fb21c3e3ac4fc0e1d6b28e294dc38b3db"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "e4b9d73e8e66f696690941e0312913af172ba26354c2da4c8e48169705b8a7eb"
+    sha256 cellar: :any_skip_relocation, big_sur:       "6304c771f4b7b2ffa0497dabbfaceb4807cdc4d51f57a6c148f8c952b4504b24"
+    sha256 cellar: :any_skip_relocation, catalina:      "beb84d27dcd93bdd5c4c303ed37cadaadd5babf88077411880116216fe1284f7"
+    sha256 cellar: :any_skip_relocation, mojave:        "433090bbb534eadd53cbcb303d37119e67d79dc53bb03ac6523b6519cdde2628"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "0746efe909395c1926e4af6bd2d77b8cc3e2265c2d7efa3e26e4a3fe30d97743"
   end
 
   depends_on "go" => :build
@@ -19,25 +20,8 @@ class NatsServer < Formula
     system "go", "build", "-ldflags", "-s -w", *std_go_args
   end
 
-  plist_options manual: "nats-server"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/nats-server</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"nats-server"
   end
 
   test do

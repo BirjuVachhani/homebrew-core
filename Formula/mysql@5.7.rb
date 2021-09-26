@@ -1,8 +1,8 @@
 class MysqlAT57 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/5.7/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-5.7/mysql-boost-5.7.32.tar.gz"
-  sha256 "9a8a04a2b0116ccff9a8d8aace07aaeaacf47329b701c5dfa9fa4351d3f1933b"
+  url "https://cdn.mysql.com/Downloads/MySQL-5.7/mysql-boost-5.7.35.tar.gz"
+  sha256 "6b30c93e5927857e31769bf5356eb23a5cff59c0a0205e5772b51b09bf3f9e12"
   license "GPL-2.0-only"
 
   livecheck do
@@ -11,11 +11,12 @@ class MysqlAT57 < Formula
   end
 
   bottle do
-    rebuild 2
-    sha256 arm64_big_sur: "828675045ac442a6862d32f58a588a5d4c3c66bbc835a6492b3f2c4bab1ac367"
-    sha256 big_sur:       "d698d7de62f5d7d3eef93c04c3ac2b7ba0aa2081f31f6617972b6c88a18a95e5"
-    sha256 catalina:      "1bf3050f0ed024f54538ccf95d96a41536ab54d87e303d802f32b5c149eb8eb7"
-    sha256 mojave:        "0240b57da7513b0082d251cc314a27022842fd588092a22088cd14eec9f1cc86"
+    rebuild 1
+    sha256 arm64_big_sur: "7482f0344cef38c37b41d2153bf03e6c4d6b0681a2236f25e5bac7b50b011983"
+    sha256 big_sur:       "983b9015ebe2bf32c43eb309de1712a289eaf22c6a17de3e5f34c8d0f9189f1a"
+    sha256 catalina:      "b2c5526552206c305b1bc10f76d34bc02fcb7a22dd69a4ef81905db361b75a78"
+    sha256 mojave:        "28b664ce06979ca687d1f57353ce79275d0838c4f0edf0c1f5a34273f93bd0bc"
+    sha256 x86_64_linux:  "06074a2cd551e6c62848614cbf378ecfec540c3097deeffe5aeb6ec11e547779"
   end
 
   keg_only :versioned_formula
@@ -33,7 +34,20 @@ class MysqlAT57 < Formula
     var/"mysql"
   end
 
+  # Fixes loading of VERSION file, backported from mysql/mysql-server@51675dd
+  patch :DATA
+
   def install
+    if OS.linux?
+      # Fix libmysqlgcs.a(gcs_logging.cc.o): relocation R_X86_64_32
+      # against `_ZN17Gcs_debug_options12m_debug_noneB5cxx11E' can not be used when making
+      # a shared object; recompile with -fPIC
+      ENV.append_to_cflags "-fPIC"
+    end
+
+    # Fixes loading of VERSION file; used in conjunction with patch
+    File.rename "VERSION", "MYSQL_VERSION"
+
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
     args = %W[
       -DCOMPILATION_COMMENT=Homebrew
@@ -122,30 +136,10 @@ class MysqlAT57 < Formula
     s
   end
 
-  plist_options manual: "#{HOMEBREW_PREFIX}/opt/mysql@5.7/bin/mysql.server start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/mysqld_safe</string>
-          <string>--datadir=#{datadir}</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{datadir}</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"mysqld_safe", "--datadir=#{var}/mysql"]
+    keep_alive true
+    working_dir var/"mysql"
   end
 
   test do
@@ -164,3 +158,28 @@ class MysqlAT57 < Formula
     system "#{bin}/mysqladmin", "--port=#{port}", "--user=root", "--password=", "shutdown"
   end
 end
+
+__END__
+diff --git a/cmake/mysql_version.cmake b/cmake/mysql_version.cmake
+index 43d731e..3031258 100644
+--- a/cmake/mysql_version.cmake
++++ b/cmake/mysql_version.cmake
+@@ -31,7 +31,7 @@ SET(DOT_FRM_VERSION "6")
+ 
+ # Generate "something" to trigger cmake rerun when VERSION changes
+ CONFIGURE_FILE(
+-  ${CMAKE_SOURCE_DIR}/VERSION
++  ${CMAKE_SOURCE_DIR}/MYSQL_VERSION
+   ${CMAKE_BINARY_DIR}/VERSION.dep
+ )
+ 
+@@ -39,7 +39,7 @@ CONFIGURE_FILE(
+ 
+ MACRO(MYSQL_GET_CONFIG_VALUE keyword var)
+  IF(NOT ${var})
+-   FILE (STRINGS ${CMAKE_SOURCE_DIR}/VERSION str REGEX "^[ ]*${keyword}=")
++   FILE (STRINGS ${CMAKE_SOURCE_DIR}/MYSQL_VERSION str REGEX "^[ ]*${keyword}=")
+    IF(str)
+      STRING(REPLACE "${keyword}=" "" str ${str})
+      STRING(REGEX REPLACE  "[ ].*" ""  str "${str}")
+

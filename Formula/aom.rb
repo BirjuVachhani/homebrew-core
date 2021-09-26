@@ -2,15 +2,16 @@ class Aom < Formula
   desc "Codec library for encoding and decoding AV1 video streams"
   homepage "https://aomedia.googlesource.com/aom"
   url "https://aomedia.googlesource.com/aom.git",
-      tag:      "v2.0.2",
-      revision: "cb1d48da8da2061e72018761788a18b8fa8013bb"
+      tag:      "v3.1.2",
+      revision: "ae2be8030200925895fa6e98bd274ffdb595cbf6"
   license "BSD-2-Clause"
 
   bottle do
-    sha256 arm64_big_sur: "f17ad0f61eef16b08826918342e88f7d180009b867467aba7307a6a495b20b59"
-    sha256 big_sur:       "4ac5117ff5065d8ad5e185c98eba0b4909ea2201bd0f8b8844edf2987e85d8a6"
-    sha256 catalina:      "0cad1d09aafe134daa8e24f5e346fd2766171f637b31894be22f9a80dcbbb770"
-    sha256 mojave:        "1856596662ee2ad37056f4db3ac26e049be22801dade3b98f1bc4ef143a23908"
+    sha256 cellar: :any,                 arm64_big_sur: "cab48a0f87dce96cd34be83f306c76b1b12ffdc36924f66db4e5b23c7d02ed9b"
+    sha256 cellar: :any,                 big_sur:       "7caa96eb1b5ffed1e77fd7bf287b8aee925a415a462209228800ad1d18b34a0f"
+    sha256 cellar: :any,                 catalina:      "8755252819aa338bb5992e88e88f13e9f0e9b6b6d4bcea909fbd772d6eb80f02"
+    sha256 cellar: :any,                 mojave:        "104a6c66a752c4d245830922658adaf9b0f47a4036089141d25ca6ff46ccbe92"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "4445426d87356c91869cce415d85c3d8bb63cdbab52ec3696e439ffce825be8a"
   end
 
   depends_on "cmake" => :build
@@ -23,7 +24,7 @@ class Aom < Formula
 
   def install
     mkdir "macbuild" do
-      args = std_cmake_args.concat(["-DCMAKE_INSTALL_RPATH=#{lib}",
+      args = std_cmake_args.concat(["-DCMAKE_INSTALL_RPATH=#{rpath}",
                                     "-DENABLE_DOCS=off",
                                     "-DENABLE_EXAMPLES=on",
                                     "-DENABLE_TESTDATA=off",
