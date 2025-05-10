@@ -1,18 +1,18 @@
 class Cspell < Formula
   desc "Spell checker for code"
   homepage "https://cspell.org"
-  url "https://registry.npmjs.org/cspell/-/cspell-8.19.4.tgz"
-  sha256 "29106e104df41b05b02ba453ad4a7346355f96743e847d968264229a724539f4"
+  url "https://registry.npmjs.org/cspell/-/cspell-9.0.1.tgz"
+  sha256 "5d68a8ad5228766aafb0e88ac2d07942dad506d652b2620805a501202509f37c"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "1297e2bac3e41600ab1dd34b0e64b6506ca1e1dc5971d359edfcd9177e66ceec"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "1297e2bac3e41600ab1dd34b0e64b6506ca1e1dc5971d359edfcd9177e66ceec"
-    sha256 cellar: :any_skip_relocation, arm64_ventura: "1297e2bac3e41600ab1dd34b0e64b6506ca1e1dc5971d359edfcd9177e66ceec"
-    sha256 cellar: :any_skip_relocation, sonoma:        "b6b81265aab0eaab51dec8ddd3a643a59484e989023cda3eb763419ea25b66cb"
-    sha256 cellar: :any_skip_relocation, ventura:       "b6b81265aab0eaab51dec8ddd3a643a59484e989023cda3eb763419ea25b66cb"
-    sha256 cellar: :any_skip_relocation, arm64_linux:   "1297e2bac3e41600ab1dd34b0e64b6506ca1e1dc5971d359edfcd9177e66ceec"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "1297e2bac3e41600ab1dd34b0e64b6506ca1e1dc5971d359edfcd9177e66ceec"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "bdeb751f85e1838bf3743169b80bf1604da6acda4756531f75397d59889db24e"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "bdeb751f85e1838bf3743169b80bf1604da6acda4756531f75397d59889db24e"
+    sha256 cellar: :any_skip_relocation, arm64_ventura: "bdeb751f85e1838bf3743169b80bf1604da6acda4756531f75397d59889db24e"
+    sha256 cellar: :any_skip_relocation, sonoma:        "23bc69b7b434f59f5d6aa3873c8a08b620d65a20287069ea14899505601608ae"
+    sha256 cellar: :any_skip_relocation, ventura:       "23bc69b7b434f59f5d6aa3873c8a08b620d65a20287069ea14899505601608ae"
+    sha256 cellar: :any_skip_relocation, arm64_linux:   "bdeb751f85e1838bf3743169b80bf1604da6acda4756531f75397d59889db24e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "bdeb751f85e1838bf3743169b80bf1604da6acda4756531f75397d59889db24e"
   end
 
   depends_on "node"

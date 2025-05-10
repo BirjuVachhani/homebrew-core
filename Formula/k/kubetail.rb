@@ -1,8 +1,8 @@
 class Kubetail < Formula
   desc "Logging tool for Kubernetes with a real-time web dashboard"
   homepage "https://www.kubetail.com/"
-  url "https://github.com/kubetail-org/kubetail/archive/refs/tags/cli/v0.4.5.tar.gz"
-  sha256 "108508a208d3b5eba03ab245f94fd2fab2cdcd53f957938d4bbec99389fb10ff"
+  url "https://github.com/kubetail-org/kubetail/archive/refs/tags/cli/v0.5.2.tar.gz"
+  sha256 "f36ac19fb74e4af6420ed72c37d502c68cf671556dac24a91cb1597c94a80812"
   license "Apache-2.0"
   head "https://github.com/kubetail-org/kubetail.git", branch: "main"
 
@@ -12,13 +12,13 @@ class Kubetail < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "27573981a1a242edeab03618b6d8f45634b87b9d0993fc2588b1b16c5a267692"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "ba14ff3d02b8fd59216c58cff0c3ca983f65d7f6352697eccef919a066c221f9"
-    sha256 cellar: :any_skip_relocation, arm64_ventura: "fb83e99004a361eaf473b8fea6b1ef41e58686db22a48068b8c606d84db7e779"
-    sha256 cellar: :any_skip_relocation, sonoma:        "0f0cbbf1ddbc1dce7219701f97a5180b539a46aa2d39fda65877b597ebb4aed8"
-    sha256 cellar: :any_skip_relocation, ventura:       "7cd3d263c082d48a0764c33ff0fc9366344530c5b8ed6aedb06d3c7b1e6dd12e"
-    sha256 cellar: :any_skip_relocation, arm64_linux:   "54728dd9bd08a2d2042fc95c11667650f4cf29b21097515ef97f7ee679f9fb9b"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "977ba5954ae11087e77dfbda4d49fc669cca41eee9e85125aae0184cc36b7521"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "a2490fe856a4252f468f27f8ac3d32fe7bb516c54be9245111d9608154a27fae"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "5167a0a9556507c375dba31b910d4cd795462e001c349302d913e7ae33fa0651"
+    sha256 cellar: :any_skip_relocation, arm64_ventura: "b4d3799b17f3d45b6a8c8ab73c23973ccd8d8129bf0d664074fd17bb002cc5a3"
+    sha256 cellar: :any_skip_relocation, sonoma:        "264d170fa4bf75842f8520eefc1fe998a59fcc131ec9e4006c0b2f6dc0a3d5ee"
+    sha256 cellar: :any_skip_relocation, ventura:       "2ba02f03b5a154ee821e8bb9f726666463ae46d28ec3332d2bf9eb2240cb1058"
+    sha256 cellar: :any_skip_relocation, arm64_linux:   "066547ad5f42888e3cdd37962f5af0b33c97c2627d4fc14b8aa8050966e6d463"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "63c08373568ad38527a4a7dcdff763a1dd843b2127e41beddeb9a6814c947094"
   end
 
   depends_on "go" => :build
